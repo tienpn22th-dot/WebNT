@@ -1,7 +1,37 @@
 ﻿@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+    ViewData["Title"] = "Trang tổng quan";
 }
 
-<h1>Index</h1>
+<div class="row">
+    <!-- Đơn hàng mới -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>150</h3>
+                <p>Đơn hàng mới</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="small-box-footer">
+                Xem thêm <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
 
+    <!-- Tỷ lệ chuyển đổi -->
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>53<sup style="font-size: 20px">%</sup></h3>
+                <p>Tỷ lệ chuyển đổi</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <a href="#" class="small-box-footer">
+                Xem thêm <i class="fas fa-arrow-circle-right"></i>
+            </a>
+        </div>
+    </div>
+</div>

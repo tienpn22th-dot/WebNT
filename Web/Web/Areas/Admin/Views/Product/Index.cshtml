@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = "Quản Lý Sản Phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Danh sách sản phẩm</h3>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modalProduct">
+            <i class="fas fa-plus"></i> Thêm mới
+        </button>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="tblProductData">
+                <tr>
+                    <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL POPUP THÊM MỚI -->
+<div class="modal fade" id="modalProduct" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Sản Phẩm Mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formProduct">
+                    <div class="form-group mb-3">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="txtTitle" class="form-control" placeholder="Nhập tên sản phẩm..." required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Giá (VNĐ)</label>
+                        <input type="number" id="txtPrice" class="form-control" placeholder="Nhập giá..." required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Đường dẫn hình ảnh (URL)</label>
+                        <input type="text" id="txtImage" class="form-control" placeholder="VD: /images/sp1.jpg hoặc link ảnh" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success" onclick="saveProduct()">Lưu sản phẩm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            loadProductData();
+        });
+
+        // Hàm lấy danh sách
+        function loadProductData() {
+            $.ajax({
+                url: '/Admin/Product/GetAll',
+                type: 'GET',
+                success: function (response) {
+                    var html = '';
+                    if (response.data && response.data.length > 0) {
+                        $.each(response.data, function (index, item) {
+                            html += '<tr>';
+                            html += '<td>' + item.id + '</td>';
+                            html += '<td><img src="' + (item.image || '/images/default.jpg') + '" style="width:50px; height:50px; object-fit:cover;" /></td>';
+                            html += '<td>' + item.title + '</td>';
+                            html += '<td>' + (item.price ? item.price.toLocaleString('vi-VN') + ' đ' : '0 đ') + '</td>';
+                            html += '<td>';
+                            html += '<button class="btn btn-sm btn-warning mr-1"><i class="fas fa-edit"></i> Sửa</button>';
+                            html += '<button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Xóa</button>';
+                            html += '</td>';
+                            html += '</tr>';
+                        });
+                    } else {
+                        html = '<tr><td colspan="5" class="text-center text-muted">Trong CSDL chưa có sản phẩm nào</td></tr>';
+                    }
+                    $('#tblProductData').html(html);
+                }
+            });
+        }
+
+        // Hàm gửi dữ liệu thêm mới
+        function saveProduct() {
+            var title = $('#txtTitle').val().trim();
+            var price = $('#txtPrice').val();
+            var image = $('#txtImage').val().trim();
+
+            if (title === '') {
+                alert('Vui lòng nhập tên sản phẩm!');
+                return;
+            }
+
+            var objData = {
+                Title: title,
+                Price: parseFloat(price) || 0,
+                Image: image
+            };
+
+            $.ajax({
+                url: '/Admin/Product/Create',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(objData),
+                success: function (res) {
+                    if (res.success) {
+                        alert(res.message);
+                        $('#modalProduct').modal('hide');
+                        $('#formProduct')[0].reset();
+                        loadProductData(); // Load lại bảng sau khi thêm
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function () {
+                    alert('Lỗi hệ thống, không thể thêm!');
+                }
+            });
+        }
+    </script>
+}
