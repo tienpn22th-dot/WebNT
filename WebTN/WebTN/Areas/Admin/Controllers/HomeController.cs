@@ -7,7 +7,8 @@ namespace Web.Areas.Admin.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            // Chuyển hướng trực tiếp sang Action Index của GroupController trong Area Admin
+            return RedirectToAction("Index", "Group", new { area = "Admin" });
         }
     }
 }

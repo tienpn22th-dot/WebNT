@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "Nhóm quyền";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml"; // Đảm bảo đúng đường dẫn Layout của bạn
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách nhóm quyền</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="openModal()">
+                        <i class="fas fa-plus"></i> Thêm mới
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="dataTable" class="table table-bordered table-striped width-100">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Tên nhóm</th>
+                            <th style="width: 150px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- DataTables sẽ render dữ liệu vào đây -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Nhóm quyền -->
+<div class="modal fade" id="groupModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm nhóm quyền</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="groupForm">
+                    <input type="hidden" id="groupId" name="id" />
+                    <div class="form-group">
+                        <label for="groupName">Tên nhóm quyền <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="groupName" name="name" placeholder="Nhập tên nhóm quyền..." required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveGroup()">Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var table;
+
+        $(document).ready(function () {
+            // Khởi tạo DataTables
+            table = $('#dataTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "ajax": {
+                    "url": "/Admin/Group/getList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": null,
+                        "orderable": false,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        "data": "name",
+                        "name": "Name"
+                    },
+                    {
+                        "data": "id",
+                        "orderable": false,
+                        "render": function (data, type, row) {
+                            return `
+                                <button class="btn btn-sm btn-info" onclick="editGroup('${data}', '${row.name}')">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteGroup('${data}')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            `;
+                        }
+                    }
+                ],
+                "language": {
+                    "emptyTable": "Chưa có dữ liệu nhóm quyền",
+                    "info": "Hiển thị _START_ đến _END_ trong _TOTAL_ bản ghi",
+                    "infoEmpty": "Hiển thị 0 đến 0 trong 0 bản ghi",
+                    "lengthMenu": "Hiển thị _MENU_ bản ghi",
+                    "search": "Tìm kiếm:",
+                    "zeroRecords": "Không tìm thấy dữ liệu phù hợp",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    }
+                }
+            });
+        });
+
+        function openModal() {
+            $('#groupId').val('');
+            $('#groupName').val('');
+            $('#modalTitle').text('Thêm nhóm quyền');
+            $('#groupModal').modal('show');
+        }
+
+        function editGroup(id, name) {
+            $('#groupId').val(id);
+            $('#groupName').val(name);
+            $('#modalTitle').text('Cập nhật nhóm quyền');
+            $('#groupModal').modal('show');
+        }
+
+        function saveGroup() {
+            var name = $('#groupName').val().trim();
+            if (name === '') {
+                alert('Vui lòng nhập tên nhóm quyền!');
+                return;
+            }
+
+            $.ajax({
+                url: '/Admin/Group/Save',
+                type: 'POST',
+                data: {
+                    id: $('#groupId').val(),
+                    name: name
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $('#groupModal').modal('hide');
+                        table.ajax.reload(); // Reload lại bảng
+                        alert(res.message);
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra trong quá trình lưu!');
+                }
+            });
+        }
+
+        function deleteGroup(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa nhóm quyền này?')) {
+                $.ajax({
+                    url: '/Admin/Group/Delete',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (res) {
+                        if (res.success) {
+                            table.ajax.reload();
+                            alert(res.message);
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi xóa!');
+                    }
+                }
+            });
+        }
+    </script>
+}
