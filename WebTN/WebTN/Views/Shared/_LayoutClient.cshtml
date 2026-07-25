@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ogani WebTN</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
+    <!-- CDN CSS Bootstrap & FontAwesome & Ogani CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://technext.github.io/ogani/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="https://technext.github.io/ogani/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="https://technext.github.io/ogani/css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="https://technext.github.io/ogani/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="https://technext.github.io/ogani/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="https://technext.github.io/ogani/css/style.css" type="text/css">
+
+    @await RenderSectionAsync("Css", required: false)
+</head>
+<body>
+    <!-- Header Begin -->
+    <header class="header">
+        <div class="header__top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="header__top__left">
+                            <ul>
+                                <li><i class="fa fa-envelope"></i> hello@webtn.com</li>
+                                <li>Miễn phí giao hàng cho đơn từ 200.000đ</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="header__top__right">
+                            <div class="header__top__right__auth">
+                                <a href="#"><i class="fa fa-user"></i> Đăng nhập</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="header__logo">
+                        <a href="/"><img src="https://technext.github.io/ogani/img/logo.png" alt="Ogani"></a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <nav class="header__menu">
+                        <ul>
+                            <li class="active"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                            <li><a href="#">Sản phẩm</a></li>
+                            <li><a href="#">Tin tức</a></li>
+                            <li><a href="#">Liên hệ</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3">
+                    <div class="header__cart">
+                        <ul>
+                            <li><a href="#"><i class="fa fa-heart"></i> <span>0</span></a></li>
+                            <li><a href="/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="humberger__open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <!-- Header End -->
+    <!-- Main Content -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- Footer Begin -->
+    <footer class="footer spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="footer__about">
+                        <div class="footer__about__logo">
+                            <a href="/"><img src="https://technext.github.io/ogani/img/logo.png" alt=""></a>
+                        </div>
+                        <ul>
+                            <li>Địa chỉ: Tân Trụ, Long An</li>
+                            <li>SĐT: 0901 234 567</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+    <!-- JS CDN -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://technext.github.io/ogani/js/jquery.nice-select.min.js"></script>
+    <script src="https://technext.github.io/ogani/js/jquery-ui.min.js"></script>
+    <script src="https://technext.github.io/ogani/js/jquery.slicknav.js"></script>
+    <script src="https://technext.github.io/ogani/js/mixitup.min.js"></script>
+    <script src="https://technext.github.io/ogani/js/owl.carousel.min.js"></script>
+    <script src="https://technext.github.io/ogani/js/main.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

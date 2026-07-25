@@ -1,0 +1,20 @@
+﻿@model Code.Database.Models.DanhMuc
+@{
+    ViewData["Title"] = "Thêm Danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<h2>Thêm Danh mục Món ăn</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Tên danh mục</label>
+        <input asp-for="TenDanhMuc" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Mô tả</label>
+        <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Lưu lại</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

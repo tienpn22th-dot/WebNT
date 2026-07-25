@@ -8,15 +8,17 @@
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 
     <!-- DataTables Bootstrap 4 CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 
-    <!-- Theme style -->
-    <link rel="stylesheet" href="~/css/adminlte.min.css">
+    <!-- Theme style (AdminLTE) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <!-- File CSS riêng nếu ông có chỉnh sửa thêm -->
+    <link rel="stylesheet" href="~/css/adminlte.min.css" asp-append-version="true" />
 
     @await RenderSectionAsync("Css", required: false)
 </head>
@@ -25,7 +27,7 @@
 
         <!-- Preloader -->
         <div class="preloader flex-column justify-content-center align-items-center">
-            <img class="animation__shake" src="~/img/AdminLTELogo.png" alt="ShopNT" height="60" width="60">
+            <img class="animation__shake" src="~/img/AdminLTELogo.png" alt="ShopNT" height="60" width="60" onerror="this.style.display='none'">
         </div>
 
         <!-- Navbar -->
@@ -36,7 +38,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="nav-link">Trang chủ</a>
+                    <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-link">Trang chủ</a>
                 </li>
             </ul>
 
@@ -53,8 +55,8 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="brand-link">
-                <img src="~/img/AdminLTELogo.png" alt="ShopNT Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="brand-link">
+                <img src="~/img/AdminLTELogo.png" alt="ShopNT Logo" class="brand-image img-circle elevation-3" style="opacity: .8" onerror="this.src='https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png'">
                 <span class="brand-text font-weight-light"><b>ShopNT</b> Admin</span>
             </a>
 
@@ -63,7 +65,7 @@
                 <!-- User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img src="~/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                        <img src="~/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image" onerror="this.src='https://adminlte.io/themes/v3/dist/img/user2-160x160.jpg'">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">Quản trị viên</a>
@@ -72,19 +74,22 @@
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
+                    @{
+                        string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+                    }
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                         <!-- TRANG CHỦ -->
                         <li class="nav-item">
-                            <a href="@Url.Action("Index", "Home", new { area = "Admin" })" class="nav-link">
+                            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="nav-link @(currentController == "Home" ? "active" : "")">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>Trang chủ</p>
                             </a>
                         </li>
 
                         <!-- HỆ THỐNG -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
+                        <li class="nav-item @(currentController == "Group" || currentController == "KhachHang" || currentController == "Account" ? "menu-open" : "")">
+                            <a href="#" class="nav-link @(currentController == "Group" || currentController == "KhachHang" || currentController == "Account" ? "active" : "")">
                                 <i class="nav-icon fas fa-cogs"></i>
                                 <p>
                                     Hệ thống
@@ -93,19 +98,19 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index", "Group", new { area = "Admin" })" class="nav-link">
+                                    <a asp-area="Admin" asp-controller="Group" asp-action="Index" class="nav-link @(currentController == "Group" ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Nhóm quyền</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="nav-link">
+                                    <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="nav-link @(currentController == "KhachHang" ? "active" : "")">
                                         <i class="nav-icon fas fa-users"></i>
                                         <p>Quản lý Khách hàng</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index", "Account", new { area = "Admin" })" class="nav-link">
+                                    <a asp-area="Admin" asp-controller="Account" asp-action="Index" class="nav-link @(currentController == "Account" ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Thành viên</p>
                                     </a>
@@ -114,8 +119,8 @@
                         </li>
 
                         <!-- QUẢN LÝ BÁN HÀNG -->
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
+                        <li class="nav-item @(currentController == "DanhMuc" || currentController == "SanPham" || currentController == "Order" ? "menu-open" : "")">
+                            <a href="#" class="nav-link @(currentController == "DanhMuc" || currentController == "SanPham" || currentController == "Order" ? "active" : "")">
                                 <i class="nav-icon fas fa-store"></i>
                                 <p>
                                     Quản lý Bán hàng
@@ -124,19 +129,19 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index", "Category", new { area = "Admin" })" class="nav-link">
+                                    <a asp-area="Admin" asp-controller="DanhMuc" asp-action="Index" class="nav-link @(currentController == "DanhMuc" ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Danh mục sản phẩm</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index", "Product", new { area = "Admin" })" class="nav-link">
+                                    <a asp-area="Admin" asp-controller="SanPham" asp-action="Index" class="nav-link @(currentController == "SanPham" ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Sản phẩm</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index", "Order", new { area = "Admin" })" class="nav-link">
+                                    <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="nav-link @(currentController == "Order" ? "active" : "")">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Đơn hàng</p>
                                     </a>
@@ -159,7 +164,7 @@
                         </div>
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home", new { area = "Admin" })">Trang chủ</a></li>
+                                <li class="breadcrumb-item"><a asp-area="Admin" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
                                 <li class="breadcrumb-item active">@ViewBag.Title</li>
                             </ol>
                         </div>
@@ -180,11 +185,11 @@
     </div>
 
     <!-- ==================== SCRIPT ==================== -->
-    <script src="~/plugins/jquery/jquery.min.js"></script>
-    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
-    <script src="~/js/adminlte.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 
     @await RenderSectionAsync("Js", required: false)
     @await RenderSectionAsync("Scripts", required: false)

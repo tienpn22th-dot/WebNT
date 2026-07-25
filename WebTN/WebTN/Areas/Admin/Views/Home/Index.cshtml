@@ -12,38 +12,42 @@
 
     <!-- 4 Thẻ Thống Kê (Cards) -->
     <div class="row">
+        <!-- Tổng doanh thu -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-primary text-white shadow h-100 py-2">
                 <div class="card-body">
                     <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng Doanh Thu</div>
-                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalRevenue.ToString("N0") VNĐ</div>
+                    <div class="h5 mb-0 font-weight-bold">@string.Format("{0:N0}", ViewBag.TotalRevenue ?? 0) VNĐ</div>
                 </div>
             </div>
         </div>
 
+        <!-- Tổng đơn hàng -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-success text-white shadow h-100 py-2">
                 <div class="card-body">
                     <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng Đơn Hàng</div>
-                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalOrders</div>
+                    <div class="h5 mb-0 font-weight-bold">@(ViewBag.TotalOrders ?? 0)</div>
                 </div>
             </div>
         </div>
 
+        <!-- Sản phẩm -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-info text-white shadow h-100 py-2">
                 <div class="card-body">
                     <div class="text-xs font-weight-bold text-uppercase mb-1">Sản Phẩm</div>
-                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalProducts</div>
+                    <div class="h5 mb-0 font-weight-bold">@(ViewBag.TotalProducts ?? 0)</div>
                 </div>
             </div>
         </div>
 
+        <!-- Khách hàng / Thành viên -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-warning text-white shadow h-100 py-2">
                 <div class="card-body">
-                    <div class="text-xs font-weight-bold text-uppercase mb-1">Khách Hàng</div>
-                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalCustomers</div>
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Thành Viên</div>
+                    <div class="h5 mb-0 font-weight-bold">@(ViewBag.TotalUsers ?? 0)</div>
                 </div>
             </div>
         </div>
@@ -70,36 +74,53 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    // Gọi API lấy dữ liệu biểu đồ từ HomeController
-                    fetch('/Admin/Home/GetRevenueChartData')
-                        .then(response => response.json())
-                        .then(data => {
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-                            new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: data.labels,
-                                    datasets: [{
-                                        label: 'Doanh thu (VNĐ)',
-                                        data: data.revenues,
-                                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
-                                        borderColor: 'rgba(78, 115, 223, 1)',
-                                        borderWidth: 2,
-                                        tension: 0.3,
-                                        fill: true
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true
+        document.addEventListener("DOMContentLoaded", function () {
+            // Gọi API lấy dữ liệu biểu đồ từ HomeController
+            fetch('/Admin/Home/GetRevenueChartData')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('revenueChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Doanh thu (VNĐ)',
+                                data: data.totals, // Đã fix đúng thuộc tính 'totals' từ Controller
+                                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                                borderColor: 'rgba(78, 115, 223, 1)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true,
+                                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                                pointRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value.toLocaleString('vi-VN') + ' đ';
                                         }
                                     }
                                 }
-                            });
-                        })
-                        .catch(error => console.error('Lỗi tải dữ liệu biểu đồ:', error));
-                });
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return 'Doanh thu: ' + context.raw.toLocaleString('vi-VN') + ' đ';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(error => console.error('Lỗi tải dữ liệu biểu đồ:', error));
+        });
     </script>
 }

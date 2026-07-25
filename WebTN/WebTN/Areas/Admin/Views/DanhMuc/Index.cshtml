@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Code.Database.Models.DanhMuc>
+@{
+    ViewData["Title"] = "Quản lý Danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Danh sách Danh mục Món ăn</h2>
+    <a asp-action="Create" class="btn btn-primary">+ Thêm danh mục mới</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Mã</th>
+            <th>Tên danh mục</th>
+            <th>Mô tả</th>
+            <th width="150" class="text-center">Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.MaDanhMuc</td>
+                <td><strong>@item.TenDanhMuc</strong></td>
+                <td>@item.MoTa</td>
+                <td class="text-center">
+                    <a asp-action="Edit" asp-route-id="@item.MaDanhMuc" class="btn btn-sm btn-warning">Sửa</a>
+                    <form asp-action="Delete" asp-route-id="@item.MaDanhMuc" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Models.EF;
 
-namespace Web.Areas.Admin.Controllers
+namespace WebTN.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class HomeController : Controller
@@ -19,11 +19,13 @@ namespace Web.Areas.Admin.Controllers
             // 1. Thống kê nhanh ra Thẻ (Cards)
             ViewBag.TotalOrders = await _context.Orders.CountAsync();
 
-            // Tính tổng tiền các đơn hàng (TotalAmount trong Order là kiểu double)
+            // Tính tổng tiền các đơn hàng
             ViewBag.TotalRevenue = await _context.Orders
                 .SumAsync(o => (double?)o.TotalAmount) ?? 0;
 
-            ViewBag.TotalProducts = await _context.Products.CountAsync();
+            // Đổi từ Products -> SanPhams cho đúng với class SanPham
+            ViewBag.TotalProducts = await _context.SanPhams.CountAsync();
+
             ViewBag.TotalUsers = await _context.Members.CountAsync();
 
             return View();

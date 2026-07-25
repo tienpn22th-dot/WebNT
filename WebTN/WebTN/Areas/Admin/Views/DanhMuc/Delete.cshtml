@@ -1,0 +1,30 @@
+﻿@model Code.Database.Models.DanhMuc
+@{
+    ViewData["Title"] = "Xóa Danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<h2 class="text-danger mb-3">Xóa Danh mục</h2>
+<h5 class="mb-4">Bạn có chắc chắn muốn xóa danh mục này không?</h5>
+
+<div class="card col-md-6 shadow-sm border-danger">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Mã danh mục:</dt>
+            <dd class="col-sm-8">@Model.MaDanhMuc</dd>
+
+            <dt class="col-sm-4">Tên danh mục:</dt>
+            <dd class="col-sm-8">@Model.TenDanhMuc</dd>
+
+            <dt class="col-sm-4">Mô tả:</dt>
+            <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.MoTa) ? "Khong co mo ta" : Model.MoTa)</dd>
+        </dl>
+    </div>
+    <div class="card-footer bg-transparent border-top-0">
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="MaDanhMuc" />
+            <button type="submit" class="btn btn-danger me-2">Xác nhận Xóa</button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+﻿@model Code.Database.Models.DanhMuc
+@{
+    ViewData["Title"] = "Chỉnh sửa Danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<h2 class="mb-4">Chỉnh sửa Danh mục</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post">
+            <!-- Khóa chính ẩn để binding gửi về Controller -->
+            <input type="hidden" asp-for="MaDanhMuc" />
+
+            <div class="mb-3">
+                <label class="form-label font-weight-bold">Tên danh mục</label>
+                <input asp-for="TenDanhMuc" class="form-control" required />
+                <span asp-validation-for="TenDanhMuc" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label font-weight-bold">Mô tả</label>
+                <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary me-2">Cập nhật</button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+        </form>
+    </div>
+</div>

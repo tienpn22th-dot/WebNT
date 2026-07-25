@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 using WebTN.Areas.Admin.Controllers;
+using WebTN.Models;
 
 namespace Web.Models.EF
 {
@@ -21,5 +22,7 @@ namespace Web.Models.EF
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<KhachHang> KhachHangs { get; set; }
+        public DbSet<DanhMuc> DanhMucs { get; set; }
+        public DbSet<SanPham> SanPhams { get; set; }
     }
 }

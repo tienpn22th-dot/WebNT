@@ -1,0 +1,77 @@
+﻿@using Code.Database.Models
+@model IEnumerable<SanPham>
+
+@{
+    ViewData["Title"] = "Quản lý Sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-boxes mr-1"></i> Danh sách Sản phẩm</h3>
+        <div class="card-tools">
+            <a asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Thêm mới
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="thead-light">
+                <tr class="text-center">
+                    <th style="width: 80px;">Mã SP</th>
+                    <th style="width: 100px;">Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th style="width: 140px;">Giá bán</th>
+                    <th style="width: 120px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center font-weight-bold">@item.MaSp</td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(item.Anh))
+                                {
+                                    <img src="@item.Anh" alt="@item.TenSp" style="width: 50px; height: 50px; object-fit: cover;" class="img-thumbnail" />
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Không có ảnh</span>
+                                }
+                            </td>
+                            <td class="font-weight-bold">@item.TenSp</td>
+                            <td class="text-center">
+                                @(item.DanhMuc != null ? item.DanhMuc.TenDanhMuc : item.MaDanhMuc)
+                            </td>
+                            <td class="text-right text-success font-weight-bold">
+                                @(item.Gia != null ? Convert.ToDecimal(item.Gia).ToString("N0") + " VNĐ" : "0 VNĐ")
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.MaSp" class="btn btn-warning btn-sm" title="Sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.MaSp" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');" title="Xóa">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x d-block mb-2"></i>
+                            Chưa có dữ liệu sản phẩm nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,158 @@
+﻿@model IEnumerable<Code.Database.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Giỏ Hàng - Ogani";
+    Layout = "~/Views/Shared/_LayoutClient.cshtml";
+}
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-section set-bg" style="background-image: url('https://technext.github.io/ogani/img/breadcrumb.jpg'); background-size: cover;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb__text">
+                    <h2>Giỏ Hàng Của Bạn</h2>
+                    <div class="breadcrumb__option">
+                        <a href="/">Trang Chủ</a>
+                        <span>Giỏ Hàng</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+<!-- Shoping Cart Section Begin -->
+<section class="shoping-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="shoping__product">Sản phẩm</th>
+                                <th>Đơn giá</th>
+                                <th>Số lượng</th>
+                                <th>Thành tiền</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-body">
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    string imgUrl = string.IsNullOrEmpty(item.Anh)
+                                    ? "https://technext.github.io/ogani/img/featured/feature-1.jpg"
+                                    : (item.Anh.StartsWith("http") || item.Anh.StartsWith("/") ? item.Anh : "/" + item.Anh);
+
+                                    <tr id="cart-item-@item.MaSp">
+                                        <td class="shoping__cart__item">
+                                            <img src="@imgUrl" alt="@item.TenSp" style="width: 80px; height: 80px; object-fit: cover; margin-right: 15px;">
+                                            <h5>@item.TenSp</h5>
+                                        </td>
+                                        <td class="shoping__cart__price">
+                                            @string.Format("{0:N0} đ", item.Gia)
+                                        </td>
+                                        <td class="shoping__cart__quantity">
+                                            <div class="quantity">
+                                                <div class="pro-qty" style="display: inline-flex; align-items: center;">
+                                                    <input type="number" value="@item.SoLuong" min="1"
+                                                           onchange="updateCart(@item.MaSp, this.value)"
+                                                           style="width: 60px; text-align: center; border: 1px solid #e1e1e1; border-radius: 4px; padding: 4px;">
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="shoping__cart__total" id="item-total-@item.MaSp">
+                                            @string.Format("{0:N0} đ", item.ThanhTien)
+                                        </td>
+                                        <td class="shoping__cart__item__close">
+                                            <button onclick="removeItem(@item.MaSp)" class="btn btn-sm btn-outline-danger" style="border-radius: 50%;">
+                                                <i class="fa fa-close"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <p class="text-muted">Giỏ hàng của bạn đang trống!</p>
+                                        <a href="/" class="primary-btn mt-2">Tiếp tục mua sắm</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="shoping__cart__btns">
+                        <a href="/" class="primary-btn cart-btn">TIẾP TỤC MUA SẮM</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="shoping__checkout" style="background: #f5f5f5; padding: 30px; border-radius: 8px;">
+                        <h5>Tổng Cộng Giỏ Hàng</h5>
+                        <ul>
+                            <li>Tổng tiền <span id="cart-grand-total">@string.Format("{0:N0} đ", Model.Sum(x => x.ThanhTien))</span></li>
+                        </ul>
+                        <a href="/Checkout" class="primary-btn w-100 text-center" style="background: #7fad39; border: none;">TIẾN HÀNH THANH TOÁN</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+<!-- Shoping Cart Section End -->
+@section Scripts {
+    <script>
+        // Cập nhật số lượng bằng AJAX
+        function updateCart(productId, newQty) {
+            if (newQty < 1) newQty = 1;
+            $.ajax({
+                url: '/Cart/UpdateQuantity',
+                type: 'POST',
+                data: { id: productId, quantity: newQty },
+                success: function (res) {
+                    if (res.success) {
+                        $('#item-total-' + productId).text(res.itemTotal);
+                        $('#cart-grand-total').text(res.totalMoney);
+                        $('.header__cart span').text(res.totalQuantity);
+                        $('.header__cart__price span').text(res.totalMoney);
+                    }
+                }
+            });
+        }
+
+        // Xóa sản phẩm khỏi giỏ bằng AJAX
+        function removeItem(productId) {
+            if (confirm('Bạn có chắc muốn xóa món này khỏi giỏ hàng?')) {
+                $.ajax({
+                    url: '/Cart/RemoveFromCart',
+                    type: 'POST',
+                    data: { id: productId },
+                    success: function (res) {
+                        if (res.success) {
+                            $('#cart-item-' + productId).remove();
+                            $('#cart-grand-total').text(res.totalMoney);
+                            $('.header__cart span').text(res.totalQuantity);
+                            $('.header__cart__price span').text(res.totalMoney);
+
+                            if ($('#cart-body tr').length === 0) {
+                                location.reload();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}
