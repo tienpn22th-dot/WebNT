@@ -1,0 +1,303 @@
+﻿@{
+    Layout = "_Admin";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-3">
+        <h3 class="card-title font-weight-bold text-primary">Danh sách Đơn hàng</h3>
+    </div>
+    <div class="card-body">
+        <table id="tblOrder" class="table table-bordered table-hover w-100">
+            <thead>
+                <tr class="bg-light">
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Số điện thoại</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th style="width: 210px;" class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Chi tiết Đơn hàng -->
+<div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Chi tiết đơn hàng <span id="lblOrderCode" class="font-weight-bold"></span></h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="orderId" />
+
+                <!-- Thông tin khách hàng -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Khách hàng:</strong> <span id="lblCustomerName"></span></p>
+                        <p class="mb-1"><strong>Số điện thoại:</strong> <span id="lblCustomerPhone"></span></p>
+                        <p class="mb-1"><strong>Địa chỉ:</strong> <span id="lblCustomerAddress"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Ngày đặt:</strong> <span id="lblCreatedOn"></span></p>
+                        <p class="mb-1"><strong>Ghi chú:</strong> <span id="lblNote"></span></p>
+                        <div class="form-group mb-0 mt-2">
+                            <label class="font-weight-bold">Trạng thái đơn hàng:</label>
+                            <select id="ddlStatus" class="form-control form-control-sm">
+                                <option value="0">Chờ duyệt (Mới)</option>
+                                <option value="1">Đang giao hàng</option>
+                                <option value="2">Đã hoàn thành</option>
+                                <option value="3">Đã hủy</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="font-weight-bold text-primary border-bottom pb-2">Danh sách sản phẩm</h6>
+
+                <!-- Bảng sản phẩm trong đơn -->
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr class="bg-light">
+                            <th>Sản phẩm</th>
+                            <th class="text-right" style="width: 100px;">Đơn giá</th>
+                            <th class="text-center" style="width: 80px;">Số lượng</th>
+                            <th class="text-right" style="width: 120px;">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblOrderItems"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right font-weight-bold">Tổng cộng:</td>
+                            <td class="text-right font-weight-bold text-danger" id="lblTotalAmount"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="updateOrderStatus()">Lưu trạng thái</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Chỉnh Sửa Đơn Hàng -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-edit"></i> Chỉnh sửa đơn hàng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editOrderId" />
+                <div class="form-group">
+                    <label class="font-weight-bold">Mã đơn hàng:</label>
+                    <input type="text" id="editOrderCode" class="form-control" readonly disabled />
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Tên khách hàng:</label>
+                    <input type="text" id="editCustomerName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Số điện thoại:</label>
+                    <input type="text" id="editCustomerPhone" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Địa chỉ nhận hàng:</label>
+                    <input type="text" id="editCustomerAddress" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Ghi chú:</label>
+                    <textarea id="editNote" class="form-control" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="font-weight-bold">Trạng thái đơn hàng:</label>
+                    <select id="editStatus" class="form-control">
+                        <option value="0">Chờ duyệt (Mới)</option>
+                        <option value="1">Đang giao hàng</option>
+                        <option value="2">Đã hoàn thành</option>
+                        <option value="3">Đã hủy</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-warning font-weight-bold" onclick="saveEditOrder()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var table;
+
+        $(document).ready(function () {
+            table = $('#tblOrder').DataTable({
+                "ajax": {
+                    "url": "/Admin/Order/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "orderCode",
+                        "render": function(data) {
+                            return `<strong class="text-primary">${data}</strong>`;
+                        }
+                    },
+                    { "data": "customerName" },
+                    { "data": "customerPhone" },
+                    {
+                        "data": "totalAmount",
+                        "render": function (data) {
+                            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(data);
+                        }
+                    },
+                    {
+                        "data": "status",
+                        "render": function (data) {
+                            if (data === 0) return '<span class="badge badge-warning">Chờ duyệt</span>';
+                            if (data === 1) return '<span class="badge badge-info">Đang giao</span>';
+                            if (data === 2) return '<span class="badge badge-success">Hoàn thành</span>';
+                            return '<span class="badge badge-secondary">Đã hủy</span>';
+                        }
+                    },
+                    { "data": "createdOn" },
+                    {
+                        "data": "id",
+                        "render": function (data) {
+                            return `
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <button class="btn btn-info btn-sm mr-1" onclick="openDetail('${data}')" title="Xem">
+                                        <i class="fas fa-eye"></i> Xem
+                                    </button>
+                                    <button class="btn btn-warning btn-sm mr-1" onclick="openEditModal('${data}')" title="Sửa">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteOrder('${data}')" title="Xóa">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            `;
+                        },
+                        "orderable": false
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
+                }
+            });
+        });
+
+        // 1. Hàm Mở Modal Xem Chi Tiết
+        function openDetail(id) {
+            $('#orderId').val(id);
+            $.get('/Admin/Order/GetDetail?id=' + id, function (res) {
+                if (res) {
+                    $('#lblOrderCode').text('#' + res.orderCode);
+                    $('#lblCustomerName').text(res.customerName);
+                    $('#lblCustomerPhone').text(res.customerPhone);
+                    $('#lblCustomerAddress').text(res.customerAddress ? res.customerAddress : 'Khóa / Chưa có');
+                    $('#lblNote').text(res.note ? res.note : 'Không');
+                    $('#lblCreatedOn').text(res.createdOn);
+                    $('#ddlStatus').val(res.status);
+
+                    var rows = '';
+                    $.each(res.items, function (i, item) {
+                        rows += `
+                            <tr>
+                                <td>${item.productName}</td>
+                                <td class="text-right">${new Intl.NumberFormat('vi-VN').format(item.price)} đ</td>
+                                <td class="text-center">${item.quantity}</td>
+                                <td class="text-right">${new Intl.NumberFormat('vi-VN').format(item.total)} đ</td>
+                            </tr>
+                        `;
+                    });
+                    $('#tblOrderItems').html(rows);
+                    $('#lblTotalAmount').text(new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(res.totalAmount));
+
+                    $('#orderModal').modal('show');
+                }
+            });
+        }
+
+        // 2. Lưu trạng thái nhanh từ Modal Xem
+        function updateOrderStatus() {
+            var id = $('#orderId').val();
+            var status = $('#ddlStatus').val();
+
+            $.post('/Admin/Order/UpdateStatus', { id: id, status: status }, function (res) {
+                if (res.success) {
+                    $('#orderModal').modal('hide');
+                    table.ajax.reload(null, false);
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+
+        // 3. Hàm Mở Modal Chỉnh Sửa
+        function openEditModal(id) {
+            $.get('/Admin/Order/GetDetail?id=' + id, function (res) {
+                if (res) {
+                    $('#editOrderId').val(res.id);
+                    $('#editOrderCode').val(res.orderCode);
+                    $('#editCustomerName').val(res.customerName);
+                    $('#editCustomerPhone').val(res.customerPhone);
+                    $('#editCustomerAddress').val(res.customerAddress);
+                    $('#editNote').val(res.note);
+                    $('#editStatus').val(res.status);
+
+                    $('#editOrderModal').modal('show');
+                } else {
+                    alert('Không lấy được thông tin đơn hàng!');
+                }
+            });
+        }
+
+        // 4. Lưu thông tin Chỉnh Sửa
+        function saveEditOrder() {
+            var data = {
+                id: $('#editOrderId').val(),
+                customerName: $('#editCustomerName').val(),
+                customerPhone: $('#editCustomerPhone').val(),
+                customerAddress: $('#editCustomerAddress').val(),
+                note: $('#editNote').val(),
+                status: $('#editStatus').val()
+            };
+
+            $.post('/Admin/Order/UpdateOrder', data, function (res) {
+                if (res.success) {
+                    $('#editOrderModal').modal('hide');
+                    table.ajax.reload(null, false);
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+
+        // 5. Hàm Xóa đơn hàng
+        function deleteOrder(id) {
+            if (confirm('Ông có chắc muốn xóa đơn hàng này không?')) {
+                $.post('/Admin/Order/Delete?id=' + id, function (res) {
+                    if (res.success) {
+                        table.ajax.reload(null, false);
+                    } else {
+                        alert(res.message);
+                    }
+                });
+            }
+        }
+    </script>
+}

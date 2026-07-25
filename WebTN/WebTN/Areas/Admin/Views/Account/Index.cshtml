@@ -1,0 +1,217 @@
+﻿@{
+    ViewBag.Title = "Quản lý Tài khoản (Thành viên)";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sách Thành viên</h6>
+        <button type="button" class="btn btn-primary btn-sm" onclick="openModal()">
+            <i class="fas fa-plus"></i> Thêm tài khoản mới
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="tblAccount" class="table table-bordered table-striped w-100">
+                <thead>
+                    <tr>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ và tên</th>
+                        <th>Email</th>
+                        <th>Nhóm / Quyền</th>
+                        <th>Ngày tạo</th>
+                        <th style="width: 140px;">Thao tác</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Tài khoản -->
+<div class="modal fade" id="modalAccount" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm tài khoản</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formAccount">
+                <div class="modal-body">
+                    <input type="hidden" id="accId" name="Id" value="" />
+
+                    <div class="form-group">
+                        <label>Tên đăng nhập (LoginName) <span class="text-danger">*</span></label>
+                        <input type="text" id="accLoginName" name="LoginName" class="form-control" placeholder="Nhập tên đăng nhập..." required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mật khẩu <span id="passRequired" class="text-danger">*</span></label>
+                        <input type="password" id="accPassword" name="Password" class="form-control" placeholder="Nhập mật khẩu..." />
+                        <small id="passNote" class="form-text text-muted d-none">Để trống nếu không muốn thay đổi mật khẩu cũ.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Họ và tên (Name) <span class="text-danger">*</span></label>
+                        <input type="text" id="accName" name="Name" class="form-control" placeholder="Nhập họ và tên..." required />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="accEmail" name="Email" class="form-control" placeholder="example@gmail.com" />
+                    </div>
+
+                    <!-- Bổ sung ô Chọn Nhóm / Quyền -->
+                    <div class="form-group">
+                        <label>Nhóm / Quyền</label>
+                        <select id="accGroupId" name="GroupId" class="form-control">
+                            <option value="">-- Chọn Nhóm / Quyền --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var table;
+
+        $(document).ready(function () {
+            // Load danh sách Group vào Dropdown khi tải trang
+            loadGroups();
+
+            // Khởi tạo DataTables
+            table = $('#tblAccount').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "@Url.Action("GetData", "Account", new { area = "Admin" })",
+                    "type": "POST"
+                },
+                "columns": [
+                    { "data": "loginName" },
+                    { "data": "name" },
+                    { "data": "email" },
+                    {
+                        "data": "groupName",
+                        "render": function(data) {
+                            var badgeClass = data === 'Chưa phân nhóm' ? 'badge-secondary' : 'badge-info';
+                            return `<span class="badge ${badgeClass}">${data}</span>`;
+                        }
+                    },
+                    { "data": "createdOn" },
+                    {
+                        "data": "id",
+                        "render": function (data) {
+                            return `
+                                <button type="button" class="btn btn-warning btn-sm" onclick="editAccount('${data}')"><i class="fas fa-edit"></i> Sửa</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="deleteAccount('${data}')"><i class="fas fa-trash"></i> Xóa</button>
+                            `;
+                        },
+                        "orderable": false
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+                }
+            });
+
+            // Submit Form qua AJAX
+            $('#formAccount').on('submit', function (e) {
+                e.preventDefault();
+
+                var data = {
+                    id: $('#accId').val(),
+                    loginName: $('#accLoginName').val(),
+                    password: $('#accPassword').val(),
+                    name: $('#accName').val(),
+                    email: $('#accEmail').val(),
+                    groupId: $('#accGroupId').val() || null // Lấy thêm GroupId
+                };
+
+                $.ajax({
+                    url: "@Url.Action("Save", "Account", new { area = "Admin" })",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: function (res) {
+                        if (res.success) {
+                            $('#modalAccount').modal('hide');
+                            table.ajax.reload();
+                            alert(res.message);
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi kết nối máy chủ!');
+                    }
+                });
+            });
+        });
+
+        // Hàm gọi API lấy danh sách Group
+        function loadGroups() {
+            $.get("@Url.Action("GetGroups", "Account", new { area = "Admin" })", function (res) {
+                var select = $('#accGroupId');
+                select.empty();
+                select.append('<option value="">-- Chọn Nhóm / Quyền --</option>');
+                if (res && res.length > 0) {
+                    $.each(res, function (i, item) {
+                        select.append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+                }
+            });
+        }
+
+        function openModal() {
+            $('#formAccount')[0].reset();
+            $('#accId').val('');
+            $('#accGroupId').val('');
+            $('#accLoginName').prop('readonly', false);
+            $('#modalTitle').text('Thêm tài khoản mới');
+            $('#passRequired').show();
+            $('#passNote').addClass('d-none');
+            $('#modalAccount').modal('show');
+        }
+
+        function editAccount(id) {
+            $.get("@Url.Action("GetById", "Account", new { area = "Admin" })", { id: id }, function (res) {
+                if (res) {
+                    $('#accId').val(res.id);
+                    $('#accLoginName').val(res.loginName).prop('readonly', true);
+                    $('#accPassword').val('');
+                    $('#accName').val(res.name);
+                    $('#accEmail').val(res.email);
+                    $('#accGroupId').val(res.groupId || ''); // Set giá trị GroupId đã gán
+
+                    $('#modalTitle').text('Chỉnh sửa tài khoản');
+                    $('#passRequired').hide();
+                    $('#passNote').removeClass('d-none');
+                    $('#modalAccount').modal('show');
+                }
+            });
+        }
+
+        function deleteAccount(id) {
+            if (confirm('Ông có chắc chắn muốn xóa tài khoản này không?')) {
+                $.post("@Url.Action("Delete", "Account", new { area = "Admin" })", { id: id }, function (res) {
+                    if (res.success) {
+                        table.ajax.reload();
+                        alert(res.message);
+                    } else {
+                        alert(res.message);
+                    }
+                });
+            }
+        }
+    </script>
+}

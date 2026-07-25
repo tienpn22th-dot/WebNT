@@ -1,0 +1,197 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Thành viên";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+    var groups = ViewBag.Groups as List<Core.Database.Models.Group>;
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Danh sách Thành viên</h3>
+        <button type="button" class="btn btn-primary" onclick="openModal()">
+            <i class="fas fa-plus me-1"></i> Thêm mới
+        </button>
+    </div>
+    <div class="card-body">
+        <table id="tblUser" class="table table-bordered table-striped w-100">
+            <thead>
+                <tr>
+                    <th>Tên hiển thị</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Nhóm quyền</th>
+                    <th width="120">Thao tác</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa -->
+<div class="modal fade" id="modalUser" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm mới Thành viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formUser">
+                    <input type="hidden" id="userId" name="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên hiển thị</label>
+                        <input type="text" class="form-control" id="txtName" name="Name" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <input type="text" class="form-control" id="txtLoginName" name="LoginName" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" class="form-control" id="txtPassword" name="Password" placeholder="Để trống nếu không đổi" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="txtEmail" name="Email" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nhóm quyền</label>
+                        <select class="form-select" id="ddlGroup" name="GroupId">
+                            <option value="">-- Chọn nhóm --</option>
+                            @if (groups != null)
+                            {
+                                foreach (var item in groups)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveData()">Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var dataTable;
+
+        $(document).ready(function () {
+            loadDataTable();
+        });
+
+        function loadDataTable() {
+            dataTable = $('#tblUser').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "/Admin/User/GetList",
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "language": {
+                    "sProcessing": "Đang xử lý...",
+                    "sLengthMenu": "Xem _MENU_ mục",
+                    "sZeroRecords": "Không tìm thấy dòng nào phù hợp",
+                    "sInfo": "Đang xem _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    "sInfoEmpty": "Đang xem 0 đến 0 trong tổng số 0 mục",
+                    "sSearch": "Tìm:",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    }
+                },
+                "columns": [
+                    { "data": "name", "autoWidth": true },
+                    { "data": "loginName", "autoWidth": true },
+                    { "data": "email", "autoWidth": true },
+                    { "data": "groupName", "autoWidth": true },
+                    {
+                        "data": "id",
+                        "render": function (data, type, row) {
+                            var name = (row.name || '').replace(/'/g, "\\'");
+                            var loginName = (row.loginName || '').replace(/'/g, "\\'");
+                            var email = (row.email || '').replace(/'/g, "\\'");
+                            var groupId = row.groupId || '';
+
+                            return `
+                                <button class="btn btn-sm btn-warning me-1" onclick="editUser('${data}', '${name}', '${loginName}', '${email}', '${groupId}')">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteUser('${data}')">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            `;
+                        },
+                        "orderable": false
+                    }
+                ]
+            });
+        }
+
+        function openModal() {
+            $('#formUser')[0].reset();
+            $('#userId').val('00000000-0000-0000-0000-000000000000');
+            $('#modalTitle').text('Thêm mới Thành viên');
+            $('#modalUser').modal('show');
+        }
+
+        function editUser(id, name, loginName, email, groupId) {
+            $('#userId').val(id);
+            $('#txtName').val(name !== 'null' ? name : '');
+            $('#txtLoginName').val(loginName !== 'null' ? loginName : '');
+            $('#txtEmail').val(email !== 'null' ? email : '');
+            $('#ddlGroup').val(groupId !== 'null' ? groupId : '');
+            $('#txtPassword').val('');
+            $('#modalTitle').text('Chỉnh sửa Thành viên');
+            $('#modalUser').modal('show');
+        }
+
+        function saveData() {
+            var formData = $('#formUser').serialize();
+            $.ajax({
+                url: '/Admin/User/Save',
+                type: 'POST',
+                data: formData,
+                success: function (res) {
+                    if (res.success) {
+                        alert(res.message);
+                        $('#modalUser').modal('hide');
+                        dataTable.ajax.reload();
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        }
+
+        function deleteUser(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa thành viên này?')) {
+                $.ajax({
+                    url: '/Admin/User/Delete',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (res) {
+                        if (res.success) {
+                            alert(res.message);
+                            dataTable.ajax.reload();
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

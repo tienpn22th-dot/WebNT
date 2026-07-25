@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
+using WebTN.Areas.Admin.Controllers;
 
 namespace Web.Models.EF
 {
@@ -16,5 +17,7 @@ namespace Web.Models.EF
         public DbSet<Member> Members { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
     }
 }

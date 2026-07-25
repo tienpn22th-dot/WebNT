@@ -1,0 +1,245 @@
+﻿@{
+    ViewBag.Title = "Quản lý Sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Danh sách Sản phẩm</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-primary" onclick="openModal()">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tblProduct" class="table table-bordered table-striped w-100">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Danh mục</th>
+                    <th>Giá bán</th>
+                    <th style="width: 150px;">Thao tác</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Sản phẩm -->
+<div class="modal fade" id="modalProduct" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm sản phẩm mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formProduct" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="productId" name="Id" value="" />
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" id="productTitle" name="Title" class="form-control" placeholder="Nhập tên sản phẩm..." required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Giá bán (VNĐ)</label>
+                                <input type="number" id="productPrice" name="Price" class="form-control" placeholder="0" min="0" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Danh mục sản phẩm</label>
+                                <select id="productCategory" name="CategoryId" class="form-control">
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Hình ảnh</label>
+                                <input type="file" id="pictureFile" name="PictureFile" class="form-control-file" accept="image/*" onchange="previewImage(this)" />
+                                <div class="mt-2">
+                                    <img id="imgPreview" src="" alt="Preview" style="max-height: 80px; display: none;" class="img-thumbnail" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả ngắn (Intro)</label>
+                        <textarea id="productIntro" name="Intro" class="form-control" rows="2" placeholder="Tóm tắt ngắn về món ăn/đồ uống..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nội dung chi tiết (Content)</label>
+                        <textarea id="productContent" name="Content" class="form-control" rows="4" placeholder="Thông tin chi tiết..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">Lưu lại</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var table;
+
+        $(document).ready(function () {
+            // Khởi tạo Datatable
+            table = $('#tblProduct').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "@Url.Action("GetData", "Product", new { area = "Admin" })",
+                    "type": "POST"
+                },
+                "columns": [
+                    {
+                        "data": "picture",
+                        "render": function (data) {
+                            var imgSrc = data ? data : 'https://via.placeholder.com/150?text=No+Image';
+                            return `<img src="${imgSrc}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=No+Image';" />`;
+                        },
+                        "orderable": false
+                    },
+                    { "data": "title" },
+                    {
+                        "data": "categoryName",
+                        "render": function (data) {
+                            return `<span class="badge badge-info">${data}</span>`;
+                        }
+                    },
+                    {
+                        "data": "price",
+                        "render": function (data) {
+                            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(data);
+                        }
+                    },
+                    {
+                        "data": "id",
+                        "render": function (data) {
+                            return `
+                                <button class="btn btn-warning btn-sm" onclick="editProduct('${data}')"><i class="fas fa-edit"></i> Sửa</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProduct('${data}')"><i class="fas fa-trash"></i> Xóa</button>
+                            `;
+                        },
+                        "orderable": false
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+                }
+            });
+
+            // Load Categories vào dropdown trong modal
+            loadCategories();
+
+            // Submit Form qua AJAX
+            $('#formProduct').on('submit', function (e) {
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: "@Url.Action("Save", "Product", new { area = "Admin" })",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (res) {
+                        if (res.success) {
+                            $('#modalProduct').modal('hide');
+                            table.ajax.reload();
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Có lỗi xảy ra khi kết nối máy chủ!');
+                    }
+                });
+            });
+        });
+
+        // Hàm lấy danh sách Category đưa vào Dropdown
+        function loadCategories() {
+            $.get("@Url.Action("GetAllCategories", "Category", new { area = "Admin" })", function (res) {
+                var options = '<option value="">-- Chọn danh mục --</option>';
+                if (res && res.length > 0) {
+                    $.each(res, function (i, item) {
+                        // Tự động nhận diện trường id/Id và name/Name
+                        var catId = item.id || item.Id;
+                        var catName = item.name || item.Name;
+                        options += `<option value="${catId}">${catName}</option>`;
+                    });
+                }
+                $('#productCategory').html(options);
+            });
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imgPreview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function openModal() {
+            $('#formProduct')[0].reset();
+            $('#productId').val('');
+            $('#imgPreview').hide();
+            $('#modalTitle').text('Thêm sản phẩm mới');
+            $('#modalProduct').modal('show');
+        }
+
+        function editProduct(id) {
+            $.get("@Url.Action("GetById", "Product", new { area = "Admin" })", { id: id }, function (res) {
+                $('#productId').val(res.id);
+                $('#productTitle').val(res.title);
+                $('#productPrice').val(res.price);
+                $('#productCategory').val(res.categoryId || '');
+                $('#productIntro').val(res.intro);
+                $('#productContent').val(res.content);
+
+                if (res.picture) {
+                    $('#imgPreview').attr('src', res.picture).show();
+                } else {
+                    $('#imgPreview').hide();
+                }
+
+                $('#modalTitle').text('Chỉnh sửa sản phẩm');
+                $('#modalProduct').modal('show');
+            });
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                $.post("@Url.Action("Delete", "Product", new { area = "Admin" })", { id: id }, function (res) {
+                    if (res.success) {
+                        table.ajax.reload();
+                    } else {
+                        alert(res.message);
+                    }
+                });
+            }
+        }
+    </script>
+}

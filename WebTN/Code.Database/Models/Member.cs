@@ -28,5 +28,6 @@ namespace Core.Database.Models
         [ForeignKey("GroupId")]
         public Guid? GroupId { get; set; }
         public Group? Group { get; set; }
+
     }
 }

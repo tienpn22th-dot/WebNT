@@ -1,0 +1,181 @@
+﻿@{
+    Layout = "_Admin";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-3">
+        <h3 class="card-title font-weight-bold text-primary">Danh sách Danh mục Sản phẩm</h3>
+        <div class="card-tools">
+            <button class="btn btn-primary btn-sm" onclick="openModal('')">
+                <i class="fas fa-plus"></i> Thêm danh mục mới
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tblCategory" class="table table-bordered table-hover w-100">
+            <thead>
+                <tr class="bg-light">
+                    <th>Tên danh mục</th>
+                    <th>Danh mục cha</th>
+                    <th style="width: 150px;">Ngày tạo</th>
+                    <th style="width: 130px;" class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa -->
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalTitle">Thêm danh mục</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <input type="hidden" id="categoryId" value="" />
+                    <div class="form-group">
+                        <label>Tên danh mục <span class="text-danger">*</span></label>
+                        <input type="text" id="categoryName" class="form-control" placeholder="Nhập tên danh mục..." required />
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục cha</label>
+                        <select id="parentId" class="form-control">
+                            <option value="">-- Là danh mục gốc (Không có cha) --</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Lưu dữ liệu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var table;
+
+        $(document).ready(function () {
+            table = $('#tblCategory').DataTable({
+                "ajax": {
+                    "url": "/Admin/Category/GetData",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "name" },
+                    {
+                        "data": "parentName",
+                        "render": function (data) {
+                            return data ? `<span class="badge badge-info">${data}</span>` : '<span class="text-muted"><i>(Danh mục gốc)</i></span>';
+                        }
+                    },
+                    { "data": "createdOn" },
+                    {
+                        "data": "id",
+                        "render": function (data) {
+                            return `
+                                <div class="text-center">
+                                    <button class="btn btn-warning btn-sm mr-1" onclick="openModal('${data}')">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteCategory('${data}')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            `;
+                        },
+                        "orderable": false
+                    }
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json"
+                }
+            });
+        });
+
+        function loadParents(currentId, selectedParentId) {
+            $.get('/Admin/Category/GetParents?currentId=' + (currentId || ''), function (data) {
+                var ddl = $('#parentId');
+                ddl.empty();
+                ddl.append('<option value="">-- Là danh mục gốc (Không có cha) --</option>');
+                $.each(data, function (i, item) {
+                    ddl.append(`<option value="${item.id}">${item.name}</option>`);
+                });
+                if (selectedParentId) {
+                    ddl.val(selectedParentId);
+                }
+            });
+        }
+
+        function openModal(id) {
+            $('#categoryId').val(id);
+            if (!id) {
+                $('#modalTitle').text('Thêm danh mục mới');
+                $('#categoryName').val('');
+                loadParents('', null);
+                $('#categoryModal').modal('show');
+            } else {
+                $('#modalTitle').text('Cập nhật danh mục');
+                $.get('/Admin/Category/GetById?id=' + id, function (res) {
+                    if (res) {
+                        $('#categoryName').val(res.name);
+                        loadParents(id, res.parentId);
+                        $('#categoryModal').modal('show');
+                    }
+                });
+            }
+        }
+
+        function saveCategory() {
+            var name = $('#categoryName').val().trim();
+            if (!name) {
+                alert('Vui lòng nhập tên danh mục!');
+                return;
+            }
+
+            var parentIdVal = $('#parentId').val();
+
+            var model = {
+                id: $('#categoryId').val() ? $('#categoryId').val() : '00000000-0000-0000-0000-000000000000',
+                name: name,
+                parentId: parentIdVal ? parentIdVal : null
+            };
+
+            $.ajax({
+                url: '/Admin/Category/Save',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: function (res) {
+                    if (res.success) {
+                        $('#categoryModal').modal('hide');
+                        table.ajax.reload();
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            });
+        }
+
+        function deleteCategory(id) {
+            if (confirm('Ông có chắc muốn xóa danh mục này không?')) {
+                $.post('/Admin/Category/Delete?id=' + id, function (res) {
+                    if (res.success) {
+                        table.ajax.reload();
+                    } else {
+                        alert(res.message);
+                    }
+                });
+            }
+        }
+    </script>
+}

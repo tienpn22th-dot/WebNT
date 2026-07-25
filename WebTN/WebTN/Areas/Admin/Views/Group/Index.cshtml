@@ -1,11 +1,29 @@
 ﻿@{
-    ViewBag.Title = "Nhóm quyền";
-    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml"; // Đảm bảo đúng đường dẫn Layout của bạn
+    ViewData["Title"] = "Nhóm quyền";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml"; // Chỉnh lại đường dẫn Layout nếu cần
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
+<!-- Content Header -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Nhóm quyền</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Nhóm quyền</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">Danh sách nhóm quyền</h3>
                 <div class="card-tools">
@@ -15,24 +33,22 @@
                 </div>
             </div>
             <div class="card-body">
-                <table id="dataTable" class="table table-bordered table-striped width-100">
+                <table id="tblGroup" class="table table-bordered table-striped w-100">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">#</th>
+                            <th style="width: 50px">#</th>
                             <th>Tên nhóm</th>
-                            <th style="width: 150px;">Thao tác</th>
+                            <th style="width: 150px" class="text-center">Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- DataTables sẽ render dữ liệu vào đây -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Modal Thêm/Sửa Nhóm quyền -->
+<!-- Modal Thêm/Sửa -->
 <div class="modal fade" id="groupModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -43,16 +59,16 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="groupForm">
+                <form id="formGroup">
                     <input type="hidden" id="groupId" name="id" />
                     <div class="form-group">
                         <label for="groupName">Tên nhóm quyền <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="groupName" name="name" placeholder="Nhập tên nhóm quyền..." required>
+                        <input type="text" class="form-control" id="groupName" name="name" placeholder="Nhập tên nhóm quyền">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" onclick="saveGroup()">Lưu dữ liệu</button>
             </div>
         </div>
@@ -61,28 +77,25 @@
 
 @section Scripts {
     <script>
-        var table;
+        var dataTable;
 
         $(document).ready(function () {
-            // Khởi tạo DataTables
-            table = $('#dataTable').DataTable({
+            // Khởi tạo DataTables gọi API getList
+            dataTable = $('#tblGroup').DataTable({
                 "processing": true,
                 "serverSide": true,
-                "paging": true,
-                "searching": true,
-                "ordering": true,
                 "ajax": {
                     "url": "/Admin/Group/getList",
                     "type": "POST",
-                    "datatype": "json"
+                    "dataType": "json"
                 },
                 "columns": [
                     {
                         "data": null,
-                        "orderable": false,
                         "render": function (data, type, row, meta) {
                             return meta.row + meta.settings._iDisplayStart + 1;
-                        }
+                        },
+                        "orderable": false
                     },
                     {
                         "data": "name",
@@ -90,36 +103,29 @@
                     },
                     {
                         "data": "id",
-                        "orderable": false,
                         "render": function (data, type, row) {
                             return `
-                                <button class="btn btn-sm btn-info" onclick="editGroup('${data}', '${row.name}')">
-                                    <i class="fas fa-edit"></i> Sửa
-                                </button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteGroup('${data}')">
-                                    <i class="fas fa-trash"></i> Xóa
-                                </button>
+                                <div class="text-center">
+                                    <button class="btn btn-warning btn-xs" onclick="editGroup('${row.id}', '${row.name}')">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" onclick="deleteGroup('${row.id}')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </div>
                             `;
-                        }
+                        },
+                        "orderable": false,
+                        "className": "text-center"
                     }
                 ],
                 "language": {
-                    "emptyTable": "Chưa có dữ liệu nhóm quyền",
-                    "info": "Hiển thị _START_ đến _END_ trong _TOTAL_ bản ghi",
-                    "infoEmpty": "Hiển thị 0 đến 0 trong 0 bản ghi",
-                    "lengthMenu": "Hiển thị _MENU_ bản ghi",
-                    "search": "Tìm kiếm:",
-                    "zeroRecords": "Không tìm thấy dữ liệu phù hợp",
-                    "paginate": {
-                        "first": "Đầu",
-                        "last": "Cuối",
-                        "next": "Sau",
-                        "previous": "Trước"
-                    }
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
                 }
             });
         });
 
+        // Mở modal Thêm mới
         function openModal() {
             $('#groupId').val('');
             $('#groupName').val('');
@@ -127,6 +133,7 @@
             $('#groupModal').modal('show');
         }
 
+        // Mở modal Sửa
         function editGroup(id, name) {
             $('#groupId').val(id);
             $('#groupName').val(name);
@@ -134,9 +141,12 @@
             $('#groupModal').modal('show');
         }
 
+        // Gọi Ajax Lưu (Thêm/Sửa)
         function saveGroup() {
-            var name = $('#groupName').val().trim();
-            if (name === '') {
+            var id = $('#groupId').val();
+            var name = $('#groupName').val();
+
+            if (!name.trim()) {
                 alert('Vui lòng nhập tên nhóm quyền!');
                 return;
             }
@@ -144,25 +154,23 @@
             $.ajax({
                 url: '/Admin/Group/Save',
                 type: 'POST',
-                data: {
-                    id: $('#groupId').val(),
-                    name: name
-                },
+                data: { id: id, name: name },
                 success: function (res) {
                     if (res.success) {
                         $('#groupModal').modal('hide');
-                        table.ajax.reload(); // Reload lại bảng
+                        dataTable.ajax.reload(); // Reload lại bảng
                         alert(res.message);
                     } else {
                         alert(res.message);
                     }
                 },
                 error: function () {
-                    alert('Có lỗi xảy ra trong quá trình lưu!');
+                    alert('Đã có lỗi xảy ra!');
                 }
             });
         }
 
+        // Gọi Ajax Xóa
         function deleteGroup(id) {
             if (confirm('Bạn có chắc chắn muốn xóa nhóm quyền này?')) {
                 $.ajax({
@@ -171,17 +179,17 @@
                     data: { id: id },
                     success: function (res) {
                         if (res.success) {
-                            table.ajax.reload();
+                            dataTable.ajax.reload();
                             alert(res.message);
                         } else {
                             alert(res.message);
                         }
                     },
                     error: function () {
-                        alert('Có lỗi xảy ra khi xóa!');
+                        alert('Đã có lỗi xảy ra!');
                     }
-                }
-            });
+                });
+            }
         }
     </script>
 }

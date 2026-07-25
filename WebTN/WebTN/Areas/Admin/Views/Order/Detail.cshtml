@@ -1,0 +1,132 @@
+﻿@model Core.Database.Models.Order
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng " + Model.OrderCode;
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Chi tiết đơn hàng: <strong>@Model.OrderCode</strong></h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Quản lý Đơn hàng</a></li>
+                    <li class="breadcrumb-item active">Chi tiết</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Thông tin khách hàng & Trạng thái -->
+            <div class="col-md-4">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-user mr-1"></i> Thông tin khách hàng</h3>
+                    </div>
+                    <div class="card-body">
+                        <strong><i class="fas fa-user-tag mr-1"></i> Họ tên:</strong>
+                        <p class="text-muted">@Model.CustomerName</p>
+                        <hr>
+
+                        <strong><i class="fas fa-phone mr-1"></i> Số điện thoại:</strong>
+                        <p class="text-muted">@Model.CustomerPhone</p>
+                        <hr>
+
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Địa chỉ giao hàng:</strong>
+                        <p class="text-muted">@Model.CustomerAddress</p>
+                        <hr>
+
+                        <strong><i class="fas fa-sticky-note mr-1"></i> Ghi chú:</strong>
+                        <p class="text-muted">@(string.IsNullOrEmpty(Model.Note) ? "Không có" : Model.Note)</p>
+                        <hr>
+
+                        <strong><i class="fas fa-calendar-alt mr-1"></i> Ngày đặt:</strong>
+                        <p class="text-muted">@Model.CreatedOn.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                </div>
+
+                <!-- Cập nhật trạng thái -->
+                <div class="card card-warning card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-edit mr-1"></i> Cập nhật trạng thái</h3>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div class="form-group">
+                                <label>Trạng thái hiện tại:</label>
+                                <select name="status" class="form-control">
+                                    <option value="1" selected="@(Model.Status == 1)">Chờ duyệt</option>
+                                    <option value="2" selected="@(Model.Status == 2)">Đã duyệt / Đang giao</option>
+                                    <option value="3" selected="@(Model.Status == 3)">Hoàn thành</option>
+                                    <option value="0" selected="@(Model.Status == 0)">Đã hủy</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Cập nhật</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div class="col-md-8">
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-shopping-cart mr-1"></i> Danh sách sản phẩm đặt mua</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">#</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Đơn giá</th>
+                                    <th>Số lượng</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+                                {
+                                    int i = 1;
+                                    foreach (var detail in Model.OrderDetails)
+                                    {
+                                        <tr>
+                                            <td>@(i++)</td>
+                                            <td>
+                                                @(detail.Product != null ? detail.Product.Title : "Sản phẩm #" + detail.ProductId)
+                                            </td>
+                                            <td>@detail.Price.ToString("N0") đ</td>
+                                            <td><span class="badge badge-info">@detail.Quantity</span></td>
+                                            <td><strong>@((detail.Price * detail.Quantity).ToString("N0")) đ</strong></td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center">Không có chi tiết sản phẩm nào.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer clearfix">
+                        <div class="float-right">
+                            <h5><strong>Tổng cộng: <span class="text-danger">@Model.TotalAmount.ToString("N0") đ</span></strong></h5>
+                        </div>
+                        <a asp-action="Index" class="btn btn-default"><i class="fas fa-arrow-left"></i> Quay lại danh sách</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
