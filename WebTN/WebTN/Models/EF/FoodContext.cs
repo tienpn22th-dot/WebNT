@@ -1,4 +1,5 @@
-﻿using Core.Database.Models;
+﻿using Code.Database.Models;
+using Core.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data;
@@ -19,5 +20,6 @@ namespace Web.Models.EF
         public DbSet<Role> Roles { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<KhachHang> KhachHangs { get; set; }
     }
 }

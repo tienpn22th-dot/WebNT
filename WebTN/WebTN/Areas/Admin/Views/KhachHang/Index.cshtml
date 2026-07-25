@@ -1,0 +1,78 @@
+﻿@model IEnumerable<Code.Database.Models.KhachHang>
+
+@{
+    ViewData["Title"] = "Quản lý Khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Danh sách khách hàng</h3>
+        <div class="card-tools">
+            <a asp-area="Admin" asp-controller="KhachHang" asp-action="Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-user-plus"></i> Thêm khách hàng mới
+            </a>
+        </div>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Mã KH</th>
+                    <th>Họ và tên</th>
+                    <th>Email</th>
+                    <th>Số điện thoại</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center" style="width: 150px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>KH00@item.MaKhachHang</td>
+                            <td><b>@item.HoTen</b></td>
+                            <td>@item.Email</td>
+                            <td>@item.SoDienThoai</td>
+                            <td>@item.DiaChi</td>
+                            <td>
+                                @if (item.TrangThai == true)
+                                {
+                                    <span class="badge badge-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">Đã khóa</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <!-- NÚT SỬA (Giữ nguyên dùng thẻ <a> GET) -->
+                                <a asp-area="Admin" asp-controller="KhachHang" asp-action="Edit" asp-route-id="@item.MaKhachHang" class="btn btn-info btn-sm" title="Sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- NÚT XÓA (Đã đổi sang <form> POST chuẩn bảo mật) -->
+                                <form asp-area="Admin" asp-controller="KhachHang" asp-action="Delete" asp-route-id="@item.MaKhachHang" method="post" style="display:inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">Chưa có dữ liệu khách hàng.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

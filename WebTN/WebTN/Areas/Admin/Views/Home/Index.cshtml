@@ -1,5 +1,105 @@
-﻿@{
-    ViewData["Title"] = "Trang chủ Admin";
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Dashboard Thống Kê";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml";
 }
 
-<h1>Trang quản trị hệ thống (Admin Dashboard)</h1>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Tổng quan hệ thống</li>
+    </ol>
+
+    <!-- 4 Thẻ Thống Kê (Cards) -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card bg-primary text-white shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng Doanh Thu</div>
+                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalRevenue.ToString("N0") VNĐ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card bg-success text-white shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Tổng Đơn Hàng</div>
+                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalOrders</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card bg-info text-white shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Sản Phẩm</div>
+                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalProducts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card bg-warning text-white shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Khách Hàng</div>
+                    <div class="h5 mb-0 font-weight-bold">@ViewBag.TotalCustomers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ Doanh thu -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card mb-4 shadow">
+                <div class="card-header fw-bold">
+                    <i class="fas fa-chart-area me-1"></i>
+                    Biểu đồ doanh thu 7 ngày gần nhất
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" width="100%" height="30"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Thư viện Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Gọi API lấy dữ liệu biểu đồ từ HomeController
+                    fetch('/Admin/Home/GetRevenueChartData')
+                        .then(response => response.json())
+                        .then(data => {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [{
+                                        label: 'Doanh thu (VNĐ)',
+                                        data: data.revenues,
+                                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                                        borderColor: 'rgba(78, 115, 223, 1)',
+                                        borderWidth: 2,
+                                        tension: 0.3,
+                                        fill: true
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(error => console.error('Lỗi tải dữ liệu biểu đồ:', error));
+                });
+    </script>
+}

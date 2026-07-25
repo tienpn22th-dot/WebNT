@@ -1,0 +1,81 @@
+﻿@model Code.Database.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Chỉnh sửa khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_Admin.cshtml"; // Đổi lại đúng đường dẫn Layout Admin của ông nếu khác
+}
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="bg-secondary rounded h-100 p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="mb-0 text-primary">Chỉnh Sửa Thông Tin Khách Hàng</h5>
+                    <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
+                    </a>
+                </div>
+
+                <form asp-area="Admin" asp-controller="KhachHang" asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Hiển thị tổng hợp lỗi nếu có -->
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <!-- Khóa chính MaKhachHang (Ẩn) -->
+                    <input type="hidden" asp-for="MaKhachHang" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="HoTen" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input asp-for="HoTen" class="form-control" placeholder="Nhập họ tên" required />
+                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SoDienThoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                            <input asp-for="SoDienThoai" class="form-control" placeholder="Nhập số điện thoại" required />
+                            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Nhập email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TrangThai" class="form-label">Trạng thái</label>
+                            <select asp-for="TrangThai" class="form-select">
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Khóa tài khoản</option>
+                            </select>
+                            <span asp-validation-for="TrangThai" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DiaChi" class="form-label">Địa chỉ</label>
+                        <textarea asp-for="DiaChi" class="form-control" rows="3" placeholder="Nhập địa chỉ chi tiết"></textarea>
+                        <span asp-validation-for="DiaChi" class="text-danger"></span>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-success me-2">
+                            <i class="fas fa-save me-1"></i> Lưu cập nhật
+                        </button>
+                        <a asp-area="Admin" asp-controller="KhachHang" asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

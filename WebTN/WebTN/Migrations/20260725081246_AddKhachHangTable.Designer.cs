@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Models.EF;
 
@@ -11,9 +12,11 @@ using Web.Models.EF;
 namespace WebTN.Migrations
 {
     [DbContext(typeof(FoodContext))]
-    partial class FoodContextModelSnapshot : ModelSnapshot
+    [Migration("20260725081246_AddKhachHangTable")]
+    partial class AddKhachHangTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
