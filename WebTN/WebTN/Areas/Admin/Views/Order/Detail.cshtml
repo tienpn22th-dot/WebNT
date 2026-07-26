@@ -64,10 +64,10 @@
                             <div class="form-group">
                                 <label>Trạng thái hiện tại:</label>
                                 <select name="status" class="form-control">
-                                    <option value="1" selected="@(Model.Status == 1)">Chờ duyệt</option>
-                                    <option value="2" selected="@(Model.Status == 2)">Đã duyệt / Đang giao</option>
-                                    <option value="3" selected="@(Model.Status == 3)">Hoàn thành</option>
-                                    <option value="0" selected="@(Model.Status == 0)">Đã hủy</option>
+                                    <option value="0" selected="@(Model.Status == 0)">Chờ duyệt (Mới)</option>
+                                    <option value="1" selected="@(Model.Status == 1)">Đang giao hàng</option>
+                                    <option value="2" selected="@(Model.Status == 2)">Hoàn thành</option>
+                                    <option value="3" selected="@(Model.Status == 3)">Đã hủy</option>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Cập nhật</button>

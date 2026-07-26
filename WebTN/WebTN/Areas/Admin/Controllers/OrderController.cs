@@ -31,7 +31,7 @@ namespace WebTN.Areas.Admin.Controllers
                 .Select(o => new
                 {
                     id = o.Id,
-                    orderCode = o.OrderCode,
+                    orderCode = o.OrderCode ?? "DH-N/A",
                     customerName = o.CustomerName,
                     customerPhone = o.CustomerPhone,
                     totalAmount = o.TotalAmount,
@@ -65,7 +65,7 @@ namespace WebTN.Areas.Admin.Controllers
             return Json(new
             {
                 id = order.Id,
-                orderCode = order.OrderCode,
+                orderCode = order.OrderCode ?? "DH-N/A",
                 customerName = order.CustomerName,
                 customerPhone = order.CustomerPhone,
                 customerAddress = order.CustomerAddress,
