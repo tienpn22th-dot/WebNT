@@ -16,23 +16,25 @@
                         <span>Danh mục món</span>
                     </div>
                     <ul>
-                        <li><a href="#">Rau củ tươi</a></li>
-                        <li><a href="#">Trái cây</a></li>
-                        <li><a href="#">Hải sản tươi</a></li>
-                        <li><a href="#">Thịt tươi</a></li>
-                        <li><a href="#">Nước ép</a></li>
+                        <li><a href="/Product?id=1">Rau củ tươi</a></li>
+                        <li><a href="/Product?id=2">Trái cây</a></li>
+                        <li><a href="/Product?id=3">Hải sản tươi</a></li>
+                        <li><a href="/Product?id=4">Thịt tươi</a></li>
+                        <li><a href="/Product?id=5">Nước ép</a></li>
                     </ul>
                 </div>
             </div>
             <div class="col-lg-9">
                 <div class="hero__search">
                     <div class="hero__search__form">
-                        <form action="#">
+                        <!-- ĐÃ SỬA: Đổi action sang /Product và method GET -->
+                        <form action="/Product" method="get">
                             <div class="hero__search__categories">
                                 Tất cả
                                 <span class="arrow_carrot-down"></span>
                             </div>
-                            <input type="text" placeholder="Bạn muốn tìm món gì?">
+                            <!-- ĐÃ SỬA: Thêm name="search" để gửi dữ liệu từ khóa -->
+                            <input type="text" name="search" placeholder="Bạn muốn tìm món gì?" value="@Context.Request.Query["search"]">
                             <button type="submit" class="site-btn">TÌM KIẾM</button>
                         </form>
                     </div>
@@ -51,7 +53,7 @@
                         <span>THỰC PHẨM SẠCH</span>
                         <h2>Rau củ <br />100% Hữu Cơ</h2>
                         <p>Nhận và giao hàng tận nơi miễn phí</p>
-                        <a href="#" class="primary-btn">MUA NGAY</a>
+                        <a href="/Product" class="primary-btn">MUA NGAY</a>
                     </div>
                 </div>
             </div>
@@ -96,8 +98,8 @@
                             <div class="featured__item__pic"
                                  style="background-image: url('@imgPath'); height: 270px; background-size: cover; background-position: center; background-repeat: no-repeat; position: relative;">
                                 <ul class="featured__item__pic__hover">
-                                    <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-retweet"></i></a></li>
+                                    <li><a href="javascript:void(0);"><i class="fa fa-heart"></i></a></li>
+                                    <li><a href="javascript:void(0);"><i class="fa fa-retweet"></i></a></li>
                                     <li>
                                         <a href="javascript:void(0);" onclick="addToCart(@item.MaSp)">
                                             <i class="fa fa-shopping-cart"></i>
@@ -106,7 +108,7 @@
                                 </ul>
                             </div>
                             <div class="featured__item__text text-center pt-3">
-                                <h6><a href="#" class="text-dark font-weight-bold">@item.TenSp</a></h6>
+                                <h6><a href="/Product/Details/@item.MaSp" class="text-dark font-weight-bold">@item.TenSp</a></h6>
                                 <h5 class="font-weight-bold text-success mt-1">@string.Format("{0:N0} đ", item.Gia)</h5>
                             </div>
                         </div>
@@ -133,8 +135,7 @@
                 success: function (res) {
                     if (res.success) {
                         alert('Đã thêm sản phẩm vào giỏ hàng!');
-                        $('.header__cart span').text(res.totalQuantity);
-                        $('.header__cart__price span').text(res.totalMoney);
+                        $('#cart-count').text(res.totalQuantity);
                     }
                 },
                 error: function () {

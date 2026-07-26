@@ -1,48 +1,228 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebTN</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - Ogani Shop</title>
+
+    <!-- Bootstrap & FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Custom CSS cho Ogani -->
+    <style>
+        :root {
+            --ogani-green: #7fad39;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fbcfdf00;
+        }
+
+        /* Header Style */
+        .ogani-header {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .header__logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--ogani-green) !important;
+            text-decoration: none !important;
+            letter-spacing: 1px;
+        }
+
+        .header__menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+            .header__menu ul li {
+                margin: 0 15px;
+            }
+
+                .header__menu ul li a {
+                    color: #1c1c1c;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    text-decoration: none;
+                    font-size: 14px;
+                    letter-spacing: 1px;
+                    transition: color 0.3s;
+                }
+
+                    .header__menu ul li a:hover,
+                    .header__menu ul li.active a {
+                        color: var(--ogani-green);
+                    }
+
+        .header__cart {
+            display: flex;
+            align-items: center;
+        }
+
+            .header__cart a {
+                color: #1c1c1c;
+                font-size: 18px;
+                position: relative;
+                margin-left: 15px;
+                text-decoration: none;
+            }
+
+                .header__cart a span {
+                    position: absolute;
+                    top: -8px;
+                    right: -10px;
+                    background: var(--ogani-green);
+                    color: #fff;
+                    font-size: 10px;
+                    font-weight: 700;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+        /* Footer Style */
+        .ogani-footer {
+            background: #f3f6fa;
+            border-top: 1px solid #e1e1e1;
+            padding-top: 40px;
+            padding-bottom: 20px;
+            margin-top: 50px;
+        }
+
+        .footer__about p {
+            color: #6f6f6f;
+            font-size: 14px;
+            line-height: 24px;
+        }
+
+        .footer__widget h6 {
+            color: #1c1c1c;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .footer__widget ul {
+            list-style: none;
+            padding: 0;
+        }
+
+            .footer__widget ul li a {
+                color: #6f6f6f;
+                font-size: 14px;
+                line-height: 30px;
+                text-decoration: none;
+            }
+
+                .footer__widget ul li a:hover {
+                    color: var(--ogani-green);
+                }
+    </style>
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/WebTN.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebTN</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <!-- Header Begin -->
+    <header class="ogani-header sticky-top py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <!-- Logo -->
+                <div class="col-lg-3 col-md-3 col-6">
+                    <a href="/" class="header__logo">
+                        OGANI<span style="color: #1c1c1c;">.</span>
+                    </a>
+                </div>
+
+                <!-- Navigation Menu -->
+                <div class="col-lg-6 col-md-6 d-none d-md-block">
+                    <nav class="header__menu text-center">
+                        <ul>
+                            <li><a href="/">Trang chủ</a></li>
+                            <li class="active"><a href="/Product">Sản phẩm</a></li>
+                            <li><a href="#">Tin tức</a></li>
+                            <li><a href="#">Liên hệ</a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <!-- Shopping Cart Icon -->
+                <div class="col-lg-3 col-md-3 col-6 text-right">
+                    <div class="header__cart">
+                        <a href="#" class="ml-auto">
+                            <i class="fas fa-heart"></i>
+                            <span>0</span>
+                        </a>
+                        <a href="/Cart">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>0</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <!-- Header End -->
+    <!-- Main Content -->
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <footer class="border-top footer text-muted">
+    <!-- Footer Begin -->
+    <footer class="ogani-footer">
         <div class="container">
-            &copy; 2026 - WebTN - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="footer__about">
+                        <h4 class="font-weight-bold text-success mb-3">OGANI</h4>
+                        <p>Chuyên cung cấp nông sản, thực phẩm sạch và an toàn cho mọi gia đình.</p>
+                        <p><i class="fas fa-map-marker-alt text-success mr-2"></i> Long An, Việt Nam</p>
+                        <p><i class="fas fa-phone text-success mr-2"></i> +84 123 456 789</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="footer__widget">
+                        <h6>Liên Kết Nhanh</h6>
+                        <ul>
+                            <li><a href="/">Trang chủ</a></li>
+                            <li><a href="/Product">Cửa hàng sản phẩm</a></li>
+                            <li><a href="#">Chính sách bảo mật</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12 mb-4">
+                    <div class="footer__widget">
+                        <h6>Đăng Ký Nhận Tin</h6>
+                        <p>Nhận thông tin ưu đãi mới nhất từ cửa hàng.</p>
+                        <form action="#">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Nhập email của bạn...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-success" style="background-color: #7fad39; border-color: #7fad39;" type="button">Đăng ký</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center text-muted py-2" style="font-size: 14px;">
+                &copy; 2026 - Ogani Shop - Bản quyền thuộc về WebTN.
+            </div>
         </div>
     </footer>
+    <!-- Footer End -->
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

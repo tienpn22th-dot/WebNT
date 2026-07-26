@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -37,7 +38,7 @@
                     <div class="col-lg-6 col-md-6">
                         <div class="header__top__right">
                             <div class="header__top__right__auth">
-                                <a href="#"><i class="fa fa-user"></i> Đăng nhập</a>
+                                <a asp-controller="Account" asp-action="Login"><i class="fa fa-user"></i> Đăng nhập</a>
                             </div>
                         </div>
                     </div>
@@ -48,24 +49,24 @@
             <div class="row">
                 <div class="col-lg-3">
                     <div class="header__logo">
-                        <a href="/"><img src="https://technext.github.io/ogani/img/logo.png" alt="Ogani"></a>
+                        <a asp-controller="Home" asp-action="Index"><img src="https://technext.github.io/ogani/img/logo.png" alt="Ogani"></a>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <nav class="header__menu">
                         <ul>
-                            <li class="active"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                            <li><a href="#">Sản phẩm</a></li>
-                            <li><a href="#">Tin tức</a></li>
-                            <li><a href="#">Liên hệ</a></li>
+                            <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                            <li><a asp-controller="Product" asp-action="Index">Sản phẩm</a></li>
+                            <li><a asp-controller="Blog" asp-action="Index">Tin tức</a></li>
+                            <li><a asp-controller="Contact" asp-action="Index">Liên hệ</a></li>
                         </ul>
                     </nav>
                 </div>
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>0</span></a></li>
-                            <li><a href="/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
+                            <li><a href="javascript:void(0);"><i class="fa fa-heart"></i> <span>0</span></a></li>
+                            <li><a asp-controller="Cart" asp-action="Index"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
                         </ul>
                     </div>
                 </div>
@@ -88,11 +89,22 @@
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer__about">
                         <div class="footer__about__logo">
-                            <a href="/"><img src="https://technext.github.io/ogani/img/logo.png" alt=""></a>
+                            <a asp-controller="Home" asp-action="Index"><img src="https://technext.github.io/ogani/img/logo.png" alt=""></a>
                         </div>
                         <ul>
                             <li>Địa chỉ: Tân Trụ, Long An</li>
                             <li>SĐT: 0901 234 567</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
+                    <div class="footer__widget">
+                        <h6>Liên kết nhanh</h6>
+                        <ul>
+                            <li><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                            <li><a asp-controller="Product" asp-action="Index">Sản phẩm</a></li>
+                            <li><a asp-controller="Blog" asp-action="Index">Tin tức</a></li>
+                            <li><a asp-controller="Contact" asp-action="Index">Liên hệ</a></li>
                         </ul>
                     </div>
                 </div>
@@ -109,6 +121,18 @@
     <script src="https://technext.github.io/ogani/js/mixitup.min.js"></script>
     <script src="https://technext.github.io/ogani/js/owl.carousel.min.js"></script>
     <script src="https://technext.github.io/ogani/js/main.js"></script>
+
+    <!-- Fix Event Click Menu Ogani -->
+    <script>
+        $(document).ready(function () {
+            $('.header__menu a, .slicknav_nav a').on('click', function (e) {
+                var url = $(this).attr('href');
+                if (url && url !== '#' && !url.startsWith('javascript')) {
+                    window.location.href = url;
+                }
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

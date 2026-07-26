@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Code.Database.Models;
-using Web.Models.EF; // Đổi lại đúng namespace chứa FoodContext của ông
+﻿using Code.Database.Models;
+using Core.Database.Models;
+using Microsoft.AspNetCore.Mvc;
+using Web.Models.EF;
 using WebTN.Helpers;
 
 namespace WebTN.Controllers
@@ -26,7 +27,6 @@ namespace WebTN.Controllers
             HttpContext.Session.Remove(CART_KEY);
         }
 
-        // Trang hiển thị form thanh toán (/Checkout)
         public IActionResult Index()
         {
             var cart = GetCartItems();
@@ -37,9 +37,8 @@ namespace WebTN.Controllers
             return View(cart);
         }
 
-        // Xử lý lưu Đặt hàng vào DB
         [HttpPost]
-        public IActionResult ProcessCheckout(string hoTen, string soDienThoai, string diaChi)
+        public async Task<IActionResult> ProcessCheckout(string hoTen, string soDienThoai, string diaChi, string? note)
         {
             var cart = GetCartItems();
             if (!cart.Any())
@@ -47,45 +46,67 @@ namespace WebTN.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
-            // 1. Lưu thông tin Đơn hàng
-            var donHang = new DonHang
+            try
             {
-                HoTen = hoTen,
-                SoDienThoai = soDienThoai,
-                DiaChi = diaChi,
-                NgayDat = DateTime.Now,
-                TongTien = cart.Sum(c => c.ThanhTien),
-                TrangThai = "Chờ xác nhận"
-            };
-
-            _context.DonHangs.Add(donHang);
-            _context.SaveChanges(); // Lưu để sinh ra MaDh tự động
-
-            // 2. Lưu Chi tiết từng món trong giỏ
-            foreach (var item in cart)
-            {
-                var chiTiet = new ChiTietDonHang
+                // 1. Tạo Đơn hàng chuẩn Model Order
+                var order = new Order
                 {
-                    MaDh = donHang.MaDh,
-                    MaSp = item.MaSp,
-                    SoLuong = item.SoLuong,
-                    DonGia = item.Gia
+                    Id = Guid.NewGuid(),
+                    OrderCode = "DH" + DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    CustomerName = hoTen ?? "Khách lẻ",
+                    CustomerPhone = soDienThoai ?? "",
+                    CustomerAddress = diaChi ?? "",
+                    Note = note ?? "",
+                    TotalAmount = (double)cart.Sum(c => c.ThanhTien),
+                    Status = 0, // 0: Chờ duyệt (Khớp với View Admin)
+                    CreatedOn = DateTime.Now
                 };
-                _context.ChiTietDonHangs.Add(chiTiet);
+
+                _context.Orders.Add(order);
+
+                // 2. Tạo Chi tiết đơn hàng (Model OrderDetail)
+                foreach (var item in cart)
+                {
+                    Guid productId;
+                    if (!Guid.TryParse(item.MaSp.ToString(), out productId))
+                    {
+                        var product = _context.Products.FirstOrDefault(p => p.Id.ToString() == item.MaSp.ToString());
+                        productId = product != null ? product.Id : _context.Products.Select(p => p.Id).FirstOrDefault();
+                    }
+
+                    var orderDetail = new OrderDetail
+                    {
+                        Id = Guid.NewGuid(),
+                        OrderId = order.Id,
+                        ProductId = productId,
+                        Price = (double)item.Gia,
+                        Quantity = item.SoLuong
+                    };
+
+                    _context.OrderDetails.Add(orderDetail);
+                }
+
+                // 3. Lưu 1 lần duy nhất
+                await _context.SaveChangesAsync();
+
+                ClearCart();
+
+                return RedirectToAction("OrderSuccess", new { id = order.Id });
             }
-            _context.SaveChanges();
-
-            // 3. Xóa giỏ hàng sau khi đặt thành công
-            ClearCart();
-
-            return RedirectToAction("OrderSuccess", new { id = donHang.MaDh });
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Có lỗi xảy ra: " + ex.Message;
+                return RedirectToAction("Index", "Cart");
+            }
         }
 
-        // Trang thông báo thành công
-        public IActionResult OrderSuccess(int id)
+        public async Task<IActionResult> OrderSuccess(Guid id)
         {
-            ViewBag.MaDh = id;
-            return View();
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null) return RedirectToAction("Index", "Home");
+
+            ViewBag.OrderCode = order.OrderCode;
+            return View(order);
         }
     }
 }

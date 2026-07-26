@@ -1,0 +1,182 @@
+﻿@model IEnumerable<Code.Database.Models.SanPham>
+@{
+    ViewData["Title"] = "Cửa hàng sản phẩm";
+
+    // Ép kiểu danh mục dynamic để đọc thuộc tính linh hoạt
+    var categories = ViewBag.Categories as IEnumerable<dynamic>;
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int? currentCategoryId = ViewBag.CurrentCategoryId;
+}
+
+<!-- Nhúng Bootstrap & FontAwesome CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Breadcrumb Section Begin -->
+<div class="py-4 text-center text-white mb-4" style="background-color: #7fad39;">
+    <h2 class="font-weight-bold text-white mb-1">CỬA HÀNG OGANI</h2>
+    <div>
+        <a href="/" class="text-white text-decoration-none">Trang chủ</a>
+        <span class="mx-1">/</span>
+        <span>Sản phẩm</span>
+    </div>
+</div>
+<!-- Breadcrumb Section End -->
+<!-- Product Section Begin -->
+<section class="product spad container my-4">
+    <div class="row">
+        <!-- Sidebar Danh mục -->
+        <div class="col-lg-3 col-md-5 mb-4">
+            <div class="sidebar border p-3 rounded shadow-sm bg-white">
+                <h5 class="font-weight-bold mb-3 pb-2 text-uppercase" style="border-bottom: 2px solid #7fad39;">
+                    Danh Mục Sản Phẩm
+                </h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item border-0 p-2">
+                        <a href="/Product" class="text-dark font-weight-bold @(currentCategoryId == null ? "text-success" : "")">
+                            <i class="fas fa-angle-right mr-2"></i> Tất cả sản phẩm
+                        </a>
+                    </li>
+                    @if (categories != null)
+                    {
+                        foreach (var cat in categories)
+                        {
+                            int catId = 0;
+                            string catName = "Danh mục";
+
+                            // Tự động nhận diện ID danh mục
+                            try { catId = (int)(cat.MaDanhMuc ?? cat.Id); } catch { }
+
+                            // Tự động nhận diện Tên danh mục
+                            try { catName = (string)(cat.TenDanhMuc ?? cat.Name ?? cat.Title ?? "Danh mục"); } catch { }
+
+                            <li class="list-group-item border-0 p-2">
+                                <a href="/Product?categoryId=@catId"
+                                   class="text-secondary @(currentCategoryId == catId ? "text-success font-weight-bold" : "")">
+                                    <i class="fas fa-angle-right mr-2"></i> @catName
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="col-lg-9 col-md-7">
+            <div class="filter__item pb-3 mb-4 border-bottom d-flex justify-content-between align-items-center">
+                <div class="filter__found">
+                    <h6>Tìm thấy <span class="text-success font-weight-bold">@(Model?.Count() ?? 0)</span> sản phẩm</h6>
+                </div>
+            </div>
+
+            <!-- Grid Sản phẩm -->
+            <div class="row">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        // 1. Lấy thông tin hình ảnh
+                        string imgRaw = item.Anh;
+                        string imgPath = "/img/no-image.png";
+
+                        if (!string.IsNullOrWhiteSpace(imgRaw))
+                        {
+                            imgRaw = imgRaw.Trim();
+                            if (imgRaw.StartsWith("http://") || imgRaw.StartsWith("https://") || imgRaw.StartsWith("/"))
+                            {
+                                imgPath = imgRaw;
+                            }
+                            else
+                            {
+                                imgPath = "/img/" + imgRaw;
+                                if (!imgPath.Contains("."))
+                                {
+                                    imgPath += ".jpg";
+                                }
+                            }
+                        }
+
+                        // 2. Lấy tên danh mục từ Navigation Property (DanhMuc)
+                        string categoryName = item.DanhMuc?.TenDanhMuc ?? "Nông sản";
+
+                        <div class="col-lg-4 col-md-6 col-sm-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm text-center product__item">
+                                <div class="position-relative overflow-hidden bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <img src="@imgPath"
+                                         class="card-img-top w-100 h-100"
+                                         alt="@item.TenSp"
+                                         style="object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/250x200?text=No+Image';">
+                                </div>
+                                <div class="card-body d-flex flex-column justify-content-between p-3">
+                                    <div>
+                                        <small class="text-muted text-uppercase d-block mb-1">@categoryName</small>
+                                        <h6 class="card-title font-weight-bold mb-2">
+                                            <a href="/Product/Detail/@item.MaSp" class="text-dark text-decoration-none">@item.TenSp</a>
+                                        </h6>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="text-danger font-weight-bold mb-3" style="font-size: 1.15rem;">
+                                            @item.Gia.ToString("N0") đ
+                                        </div>
+                                        <a href="/Cart/AddToCart?id=@item.MaSp" class="btn btn-outline-success btn-sm font-weight-bold w-100 py-2">
+                                            <i class="fa fa-shopping-cart mr-1"></i> Thêm vào giỏ
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <h5>Không tìm thấy sản phẩm nào!</h5>
+                    </div>
+                }
+            </div>
+
+            <!-- Phân trang -->
+            @if (totalPages > 1)
+            {
+                <div class="d-flex justify-content-center mt-4">
+                    <nav>
+                        <ul class="pagination">
+                            @for (int i = 1; i <= totalPages; i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    <a class="page-link" href="/Product?page=@i@(currentCategoryId.HasValue ? $"&categoryId={currentCategoryId}" : "")">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .product__item {
+        transition: all 0.3s ease-in-out;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        .product__item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+        }
+
+    .page-item.active .page-link {
+        background-color: #7fad39;
+        border-color: #7fad39;
+    }
+
+    .page-link {
+        color: #7fad39;
+    }
+</style>

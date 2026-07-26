@@ -26,14 +26,17 @@ namespace WebTN.Controllers
             HttpContext.Session.SetObjectAsJson(CART_KEY, cart);
         }
 
-        // 1. API Thêm vào giỏ (AJAX)
-        [HttpPost]
+        // 1. Thêm vào giỏ (Hỗ trợ cả AJAX POST lẫn Click Link GET)
         public async Task<IActionResult> AddToCart(int id, int quantity = 1)
         {
             var sp = await _context.SanPhams.FindAsync(id);
             if (sp == null)
             {
-                return Json(new { success = false, message = "Sản phẩm không tồn tại!" });
+                if (IsAjaxRequest())
+                {
+                    return Json(new { success = false, message = "Sản phẩm không tồn tại!" });
+                }
+                return RedirectToAction("Index", "Product");
             }
 
             var cart = GetCartItems();
@@ -60,12 +63,19 @@ namespace WebTN.Controllers
             int totalQuantity = cart.Sum(c => c.SoLuong);
             decimal totalMoney = cart.Sum(c => c.ThanhTien);
 
-            return Json(new
+            // Nếu gọi bằng AJAX
+            if (IsAjaxRequest())
             {
-                success = true,
-                totalQuantity = totalQuantity,
-                totalMoney = string.Format("{0:N0} đ", totalMoney)
-            });
+                return Json(new
+                {
+                    success = true,
+                    totalQuantity = totalQuantity,
+                    totalMoney = string.Format("{0:N0} đ", totalMoney)
+                });
+            }
+
+            // Nếu bấm qua đường dẫn link trực tiếp -> Chuyển về trang Giỏ hàng
+            return RedirectToAction("Index");
         }
 
         // 2. Trang danh sách Giỏ hàng (/Cart)
@@ -130,6 +140,12 @@ namespace WebTN.Controllers
                 totalMoney = string.Format("{0:N0} đ", totalMoney),
                 totalQuantity = totalQuantity
             });
+        }
+
+        // Hàm phụ trợ kiểm tra Request có phải là AJAX không
+        private bool IsAjaxRequest()
+        {
+            return Request.Headers["X-Requested-With"] == "XMLHttpRequest";
         }
     }
 }

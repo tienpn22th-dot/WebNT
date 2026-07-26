@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<!-- Nhúng CDN CSS trực tiếp để không bị vỡ giao diện -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Breadcrumb Section Begin -->
+<div class="py-4 text-center text-white" style="background-color: #7fad39;">
+    <h2 class="font-weight-bold text-white mb-1">TÀI KHOẢN</h2>
+    <div>
+        <a href="/" class="text-white text-decoration-none">Trang chủ</a>
+        <span class="mx-1">/</span>
+        <span>Đăng nhập</span>
+    </div>
+</div>
+<!-- Breadcrumb Section End -->
+<!-- Login Section Begin -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="p-4 p-md-5 rounded shadow-sm" style="background-color: #f5f5f5;">
+                <h4 class="text-center font-weight-bold mb-4 pb-2 text-uppercase" style="color: #1c1c1c; border-bottom: 2px solid #7fad39;">
+                    Đăng Nhập Tài Khoản
+                </h4>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger text-center py-2 small">@ViewBag.Error</div>
+                }
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success text-center py-2 small">@TempData["Success"]</div>
+                }
+
+                <form action="/Account/Login" method="post">
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold">Tên đăng nhập <span class="text-danger">*</span></label>
+                        <input type="text" name="loginName" class="form-control" style="height: 45px;" required placeholder="Nhập tên đăng nhập...">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="font-weight-bold">Mật khẩu <span class="text-danger">*</span></label>
+                        <input type="password" name="password" class="form-control" style="height: 45px;" required placeholder="Nhập mật khẩu...">
+                    </div>
+
+                    <button type="submit" class="btn text-white w-100 font-weight-bold py-2" style="background-color: #7fad39; font-size: 16px;">
+                        ĐĂNG NHẬP
+                    </button>
+
+                    <div class="text-center mt-4">
+                        <span>Chưa có tài khoản? </span>
+                        <a href="/Account/Register" class="font-weight-bold text-decoration-none" style="color: #7fad39;">Đăng ký ngay</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Login Section End -->
