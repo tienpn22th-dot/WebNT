@@ -9,7 +9,10 @@
             <i class="fa fa-check-circle text-success" style="font-size: 80px;"></i>
         </div>
         <h2 class="text-success font-weight-bold mb-3">ĐẶT HÀNG THÀNH CÔNG!</h2>
-        <p class="text-muted font-weight-bold" style="font-size: 18px;">Mã đơn hàng: <span class="text-danger">#@ViewBag.MaDh</span></p>
+
+        <!-- Sửa @ViewBag.MaDh thành @ViewBag.OrderCode ở đây -->
+        <p class="text-muted font-weight-bold" style="font-size: 18px;">Mã đơn hàng: <span class="text-danger">#@ViewBag.OrderCode</span></p>
+
         <p class="text-secondary mb-4">Cảm ơn ông đã đặt hàng tại Ogani. Shop sẽ gọi điện xác nhận và giao hàng nhanh nhất có thể!</p>
         <div>
             <a href="/" class="primary-btn" style="padding: 12px 30px; font-weight: 600; background: #7fad39; color: white; text-decoration: none; border-radius: 5px;">Về Trang Chủ</a>

@@ -38,7 +38,7 @@ namespace WebTN.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessCheckout(string hoTen, string soDienThoai, string diaChi, string? note)
+        public async Task<IActionResult> ProcessCheckout(string hoTen, string soDienThoai, string diaChi, string? note, string phuongThucTT)
         {
             var cart = GetCartItems();
             if (!cart.Any())
@@ -56,7 +56,7 @@ namespace WebTN.Controllers
                     CustomerName = hoTen ?? "Khách lẻ",
                     CustomerPhone = soDienThoai ?? "",
                     CustomerAddress = diaChi ?? "",
-                    Note = note ?? "",
+                    Note = string.IsNullOrEmpty(note) ? $"PTTT: {phuongThucTT ?? "COD"}" : $"{note} (PTTT: {phuongThucTT ?? "COD"})", // Lưu PTTT vào Note nếu Model Order không có trường PaymentMethod
                     TotalAmount = (double)cart.Sum(c => c.ThanhTien),
                     Status = 0, // 0: Chờ duyệt (Khớp với View Admin)
                     CreatedOn = DateTime.Now
@@ -86,9 +86,10 @@ namespace WebTN.Controllers
                     _context.OrderDetails.Add(orderDetail);
                 }
 
-                // 3. Lưu 1 lần duy nhất
+                // 3. Lưu vào Database
                 await _context.SaveChangesAsync();
 
+                // 4. Xóa giỏ hàng sau khi lưu đơn thành công
                 ClearCart();
 
                 return RedirectToAction("OrderSuccess", new { id = order.Id });
@@ -105,6 +106,7 @@ namespace WebTN.Controllers
             var order = await _context.Orders.FindAsync(id);
             if (order == null) return RedirectToAction("Index", "Home");
 
+            // Truyền cả Model và OrderCode qua ViewBag cho chắc ăn
             ViewBag.OrderCode = order.OrderCode;
             return View(order);
         }
