@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Code.Database.Models.CartItem>
+
+@{
+    ViewData["Title"] = "Thanh Toán - Ogani";
+    Layout = "~/Views/Shared/_LayoutClient.cshtml";
+}
+
+<section class="breadcrumb-section set-bg" style="background-image: url('https://technext.github.io/ogani/img/breadcrumb.jpg'); background-size: cover;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb__text">
+                    <h2>Thanh Toán Đơn Hàng</h2>
+                    <div class="breadcrumb__option">
+                        <a href="/">Trang Chủ</a>
+                        <span>Thanh Toán</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="checkout spad">
+    <div class="container">
+        <form action="/Checkout/ProcessCheckout" method="post">
+            <div class="row">
+                <div class="col-lg-7 col-md-6">
+                    <div class="checkout__input">
+                        <h4 style="margin-bottom: 25px; font-weight: 700;">Thông tin người nhận</h4>
+                    </div>
+                    <div class="checkout__input mb-3">
+                        <p>Họ và tên <span>*</span></p>
+                        <input type="text" name="hoTen" required class="form-control" placeholder="Nhập họ tên...">
+                    </div>
+                    <div class="checkout__input mb-3">
+                        <p>Số điện thoại <span>*</span></p>
+                        <input type="text" name="soDienThoai" required class="form-control" placeholder="Nhập số điện thoại...">
+                    </div>
+                    <div class="checkout__input mb-3">
+                        <p>Địa chỉ nhận hàng <span>*</span></p>
+                        <input type="text" name="diaChi" required class="form-control" placeholder="Số nhà, tên đường, xã/huyện/tỉnh...">
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-6">
+                    <div class="checkout__order" style="background: #f5f5f5; padding: 30px; border-radius: 8px;">
+                        <h4 style="border-bottom: 1px solid #d7d7d7; padding-bottom: 15px; margin-bottom: 20px;">Đơn hàng của bạn</h4>
+                        <div class="checkout__order__products d-flex justify-content-between font-weight-bold mb-2">
+                            <span>Sản phẩm</span>
+                            <span>Thành tiền</span>
+                        </div>
+                        <ul style="list-style: none; padding-left: 0;">
+                            @foreach (var item in Model)
+                            {
+                                <li style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">@item.TenSp (x@item.SoLuong)</span>
+                                    <b>@string.Format("{0:N0} đ", item.ThanhTien)</b>
+                                </li>
+                            }
+                        </ul>
+                        <div class="checkout__order__subtotal" style="border-top: 1px solid #d7d7d7; padding-top: 15px; margin-top: 15px; display: flex; justify-content: space-between;">
+                            Tổng tiền thanh toán <span style="color: #7fad39; font-weight: 700; font-size: 20px;">@string.Format("{0:N0} đ", Model.Sum(x => x.ThanhTien))</span>
+                        </div>
+                        <button type="submit" class="site-btn" style="width: 100%; margin-top: 25px; text-align: center; background: #7fad39; border: none; padding: 15px; color: white; font-weight: 700; border-radius: 5px;">ĐẶT HÀNG NGAY</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>

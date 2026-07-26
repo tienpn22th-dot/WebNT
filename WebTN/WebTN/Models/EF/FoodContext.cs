@@ -24,5 +24,7 @@ namespace Web.Models.EF
         public DbSet<KhachHang> KhachHangs { get; set; }
         public DbSet<DanhMuc> DanhMucs { get; set; }
         public DbSet<SanPham> SanPhams { get; set; }
+        public DbSet<DonHang> DonHangs { get; set; }
+        public DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
     }
 }

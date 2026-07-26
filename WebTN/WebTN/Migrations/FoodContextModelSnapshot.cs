@@ -53,7 +53,7 @@ namespace WebTN.Migrations
 
                     b.HasKey("MaKhachHang");
 
-                    b.ToTable("KhachHang");
+                    b.ToTable("KhachHang", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Article", b =>
@@ -98,7 +98,7 @@ namespace WebTN.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Article");
+                    b.ToTable("Article", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Authorized", b =>
@@ -119,7 +119,7 @@ namespace WebTN.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Authorized");
+                    b.ToTable("Authorized", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Category", b =>
@@ -152,7 +152,7 @@ namespace WebTN.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Category");
+                    b.ToTable("Category", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Group", b =>
@@ -168,7 +168,7 @@ namespace WebTN.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Group");
+                    b.ToTable("Group", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Member", b =>
@@ -220,7 +220,7 @@ namespace WebTN.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Member");
+                    b.ToTable("Member", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Order", b =>
@@ -263,7 +263,7 @@ namespace WebTN.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.OrderDetail", b =>
@@ -290,7 +290,7 @@ namespace WebTN.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetail");
+                    b.ToTable("OrderDetail", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Product", b =>
@@ -325,7 +325,7 @@ namespace WebTN.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Product", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Role", b =>
@@ -351,7 +351,7 @@ namespace WebTN.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Role");
+                    b.ToTable("Role", (string)null);
                 });
 
             modelBuilder.Entity("Core.Database.Models.Authorized", b =>
